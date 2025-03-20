@@ -3,9 +3,17 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\StoreController;
+use App\Models\Store;
+use App\Models\Product;
+
+// Route::get('/', function () {
+//     return redirect()->route('login');
+// });
 
 Route::get('/', function () {
-    return redirect()->route('login');
+    $stores = Store::all(); 
+    $products = Product::all();
+    return view('welcome', compact('stores', 'products')); 
 });
 
 Route::get('login', [AuthController::class, 'index'])->name('login');
@@ -20,4 +28,3 @@ Route::get('logout', [AuthController::class, 'logout'])->name('logout');
 
 
 
-Route::get('store', [StoreController::class, 'index'])->name('store.index');;

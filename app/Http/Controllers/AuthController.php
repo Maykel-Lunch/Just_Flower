@@ -6,9 +6,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\Store;
+use App\Models\Product;
 
 class AuthController extends Controller
 {
+
+    
     // Show the login form
     public function index()
     {
@@ -52,15 +55,16 @@ class AuthController extends Controller
 
         User::create($data);
 
-        return redirect()->route('login')->withSuccess('Registration successful. Please log in.');
+        return redirect()->route('dashboard')->withSuccess('Registration successful. Please log in.');
     }
 
     // Show the dashboard
     public function dashboard()
     {
         if (Auth::check()) {
-            $stores = Store::all(); // Fetch all stores from the database
-            return view('dashboard', compact('stores')); // Pass $stores to the view
+            $stores = Store::all(); 
+            $products = Product::all();
+            return view('auth.dashboard', compact('stores', 'products'));
         }
 
         return redirect()->route('login')->withErrors('You need to log in first.');
