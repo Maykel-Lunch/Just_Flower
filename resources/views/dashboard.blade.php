@@ -30,7 +30,19 @@
         </div>
     </nav>
     <div class="flex items-center justify-center min-h-screen">
-        
+        <div class="p-4">
+            Available stores:
+            <ul class="space-y-4">
+            @foreach ($stores as $store)
+                <li class="flex items-center space-x-4 p-4 border rounded-lg shadow-md">
+                    @php
+                        $storeLogoPath = is_array($store->store_logo) ? '' : str_replace('\\', '/', $store->store_logo);
+                    @endphp
+                    <img src="{{ asset($storeLogoPath) }}" alt="{{ $store->store_name }} logo" class="w-16 h-16 object-cover rounded-full border-2 border-gray-300">
+                </li>
+            @endforeach
+            </ul>      
+        </div>
     </div>
 </body>
 </html>

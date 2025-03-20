@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use App\Models\Store;
 
 class AuthController extends Controller
 {
@@ -58,7 +59,8 @@ class AuthController extends Controller
     public function dashboard()
     {
         if (Auth::check()) {
-            return view('dashboard');
+            $stores = Store::all(); // Fetch all stores from the database
+            return view('dashboard', compact('stores')); // Pass $stores to the view
         }
 
         return redirect()->route('login')->withErrors('You need to log in first.');
