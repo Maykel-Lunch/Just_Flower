@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\StoreController;
+use App\Http\Controllers\ProductController;
 use App\Models\Store;
 use App\Models\Product;
 
@@ -25,6 +26,14 @@ Route::post('post-registration', [AuthController::class, 'postRegistration'])->n
 Route::get('dashboard', [AuthController::class, 'dashboard'])->name('dashboard');
 
 Route::get('logout', [AuthController::class, 'logout'])->name('logout');
+
+Route::get('/search', [ProductController::class, 'search'])->name('search');
+Route::get('/product/{product_id?}', [ProductController::class, 'showProductDetails'])->name('product.details');
+
+
+
+
+
 
 
 
