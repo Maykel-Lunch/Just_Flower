@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -125,7 +123,8 @@
                     <div class="w-2/4">
                         <h1 class="text-2xl font-bold text-gray-800">{{ $product->product_name }}</h1>
                         <p class="text-gray-600 mt-2">{{ $product->description }}</p>
-                        <p class="text-lg font-semibold text-gray-800 mt-4">Price: ₱{{ number_format($product->price, 2) }}</p>
+                        <!-- <p class="text-lg font-semibold text-gray-800 mt-4">Price: ₱{{ number_format($product->price, 2) }}</p> -->
+                        <p class="price">Price: ₱<span id="product-price">{{ number_format($product->price, 2) }}</span></p>
 
                         <!-- Customization Options -->
                         <div class="mt-4">
@@ -312,51 +311,46 @@
     </script>
 
 
-    <script>
-        document.getElementById('increment').addEventListener('click', function () {
-            let qty = document.getElementById('quantity');
-            qty.value = parseInt(qty.value) + 1;
-        });
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const quantityInput = document.getElementById("quantity");
+        const totalPriceElement = document.getElementById("total-price");
+        const incrementButton = document.getElementById("increment");
+        const decrementButton = document.getElementById("decrement");
 
-        document.getElementById('decrement').addEventListener('click', function () {
-            let qty = document.getElementById('quantity');
-            if (parseInt(qty.value) > 1) {
-                qty.value = parseInt(qty.value) - 1;
-            }
-        });
-    </script>
-
-
-    <script>
-        // Get elements
-        let qty = document.getElementById('quantity');
-        let totalPrice = document.getElementById('total-price');
-        
-        // Set base price from PHP
-        let basePrice = {{ $product->price }}; // Assuming PHP variable is available
-
-        // Function to update total price
-        function updateTotalPrice() {
-            let quantity = parseInt(qty.value);
-            totalPrice.textContent = (basePrice * quantity).toFixed(2);
+        function getPrice() {
+            // Dynamically fetch the price from the DOM
+            return parseFloat(document.getElementById("product-price").textContent.replace(/[^0-9.]/g, ""));
         }
 
-        // Event Listeners for increment and decrement
-        document.getElementById('increment').addEventListener('click', function () {
-            qty.value = parseInt(qty.value) + 1;
+        function updateTotalPrice() {
+            const price = getPrice(); // Fetch the current price
+            let quantity = parseInt(quantityInput.value) || 1;
+            if (quantity < 1) quantity = 1;
+            totalPriceElement.textContent = (price * quantity).toLocaleString("en-PH", { minimumFractionDigits: 2 });
+        }
+
+        incrementButton.addEventListener("click", function () {
+            quantityInput.value = parseInt(quantityInput.value) + 1;
             updateTotalPrice();
         });
 
-        document.getElementById('decrement').addEventListener('click', function () {
-            if (parseInt(qty.value) > 1) {
-                qty.value = parseInt(qty.value) - 1;
+        decrementButton.addEventListener("click", function () {
+            if (parseInt(quantityInput.value) > 1) {
+                quantityInput.value = parseInt(quantityInput.value) - 1;
                 updateTotalPrice();
             }
         });
 
-        // Initialize total price
+        quantityInput.addEventListener("input", updateTotalPrice);
+
         updateTotalPrice();
-    </script>
+    });
+</script>
+
+
+
+
 
 </body>
 </html>
