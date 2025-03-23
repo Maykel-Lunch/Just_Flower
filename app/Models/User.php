@@ -45,4 +45,16 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+
+    // Relationship to fetch the user's messages
+    // public function user()
+    // {
+    //     return $this->belongsTo(User::class, 'user_id', 'id');
+    // }
+
+    public function store()
+    {
+        return $this->hasOne(Store::class, 'user_id'); 
+    }
 }

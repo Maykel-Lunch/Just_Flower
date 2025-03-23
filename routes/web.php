@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\MessageController;
 use App\Models\Store;
 use App\Models\Product;
 
@@ -29,6 +30,10 @@ Route::get('logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::get('/search', [ProductController::class, 'search'])->name('search');
 Route::get('/product/{product_id?}', [ProductController::class, 'showProductDetails'])->name('product.details');
+
+// added here
+Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
+Route::post('/messages', [MessageController::class, 'store'])->name('messages.store');
 
 
 

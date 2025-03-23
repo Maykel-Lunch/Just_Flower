@@ -16,15 +16,6 @@ class ProductController extends Controller
         return view('dashboard', compact('store','products'));
     }
 
- 
-
-
-    // public function showProductDetails($id)
-    // {
-    //     $product = Product::with('primaryImage', 'images')->findOrFail($id);
-    //     return view('auth.product', compact('product'));
-    // }
-
     public function search(Request $request)
     {
         $query = $request->input('query');
@@ -49,28 +40,17 @@ class ProductController extends Controller
     }
 
 
-    // public function showProductDetails($id)
-    // {
-    //     $product = Product::with('primaryImage', 'images')->findOrFail($id);
-        
-    //     // Fetch other products (excluding the current product)
-    //     $products = Product::where('product_id', '!=', $id)->paginate(8);
-
-    //     return view('auth.product', compact('product', 'products'));
-    // }
-
-
     public function showProductDetails($id)
-{
-    $product = Product::with('primaryImage', 'images')->findOrFail($id);
+    {
+        $product = Product::with('primaryImage', 'images')->findOrFail($id);
 
-    // Fetch random products (excluding the current product)
-    $products = Product::where('product_id', '!=', $id)
-        ->inRandomOrder()
-        ->paginate(8);
+        // Fetch random products (excluding the current product)
+        $products = Product::where('product_id', '!=', $id)
+            ->inRandomOrder()
+            ->paginate(8);
 
-    return view('auth.product', compact('product', 'products'));
-}
+        return view('auth.product', compact('product', 'products'));
+    }
 
 
 }

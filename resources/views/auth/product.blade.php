@@ -204,35 +204,55 @@
 
     
     <div class="container mx-auto px-4 py-8">
-    <h2 class="text-2xl font-semibold text-gray-800 mb-6 text-center">Our Products</h2>
+        <h2 class="text-2xl font-semibold text-gray-800 mb-6 text-center">Our Products</h2>
 
-    @if($products->count())
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            @foreach ($products as $product)
-                <div class="bg-white shadow-lg rounded-xl overflow-hidden transition-transform transform hover:scale-105">
-                    <a href="{{ route('product.details', ['product_id' => $product->product_id]) }}">
-                        <img src="{{ $product->primaryImage ? asset($product->primaryImage->image_url) : 'https://via.placeholder.com/300' }}" 
-                            alt="{{ $product->product_name }}" 
-                            class="w-full h-48 object-cover">
-                        <div class="p-4">
-                            <h3 class="text-lg font-semibold text-gray-900">{{ $product->product_name }}</h3>
-                            <p class="text-gray-600 text-sm mt-1 truncate">{{ Str::limit($product->description, 50, '...') }}</p>
-                            <p class="text-[#EC59A0] font-bold text-lg mt-2">₱{{ number_format($product->price, 2) }}</p>
-                        </div>
-                    </a>
-                </div>
-            @endforeach
-        </div>
+        @if($products->count())
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                @foreach ($products as $product)
+                    <div class="bg-white shadow-lg rounded-xl overflow-hidden transition-transform transform hover:scale-105">
+                        <a href="{{ route('product.details', ['product_id' => $product->product_id]) }}">
+                            <img src="{{ $product->primaryImage ? asset($product->primaryImage->image_url) : 'https://via.placeholder.com/300' }}" 
+                                alt="{{ $product->product_name }}" 
+                                class="w-full h-48 object-cover">
+                            <div class="p-4">
+                                <h3 class="text-lg font-semibold text-gray-900">{{ $product->product_name }}</h3>
+                                <p class="text-gray-600 text-sm mt-1 truncate">{{ Str::limit($product->description, 50, '...') }}</p>
+                                <p class="text-[#EC59A0] font-bold text-lg mt-2">₱{{ number_format($product->price, 2) }}</p>
+                            </div>
+                        </a>
+                    </div>
+                @endforeach
+            </div>
 
-        <div class="mt-8 flex justify-center">
-            {{ $products->onEachSide(1)->links() }}
-        </div>
 
-    @else
-        <p class="text-center text-gray-500 text-lg">No products available.</p>
-    @endif
+            <nav class="flex justify-center mt-6"> <!-- Added margin-top -->
+                <ul class="inline-flex items-center -space-x-px">
+                    <li>
+                        <a href="{{ $products->previousPageUrl() }}" class="px-3 py-2 ml-0 leading-tight text-[#F566BC] bg-white border border-[#F566BC] rounded-l-lg hover:bg-[#F566BC] hover:text-white">
+                            Prev
+                        </a>
+                    </li>
+                    @foreach ($products->links()->elements as $element)
+                        @foreach ($element as $page => $url)
+                            <li>
+                                <a href="{{ $url }}" class="px-3 py-2 leading-tight text-black border border-[#F566BC] hover:bg-[#F566BC] hover:text-white {{ $page == $products->currentPage() ? 'bg-[#F566BC] text-white' : 'bg-white' }}">
+                                    {{ $page }}
+                                </a>
+                            </li>
+                        @endforeach
+                    @endforeach
+                    <li>
+                        <a href="{{ $products->nextPageUrl() }}" class="px-3 py-2 leading-tight text-[#F566BC] bg-white border border-[#F566BC] rounded-r-lg hover:bg-[#F566BC] hover:text-white">
+                            Next
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        @else
+            <p class="text-center text-gray-500 text-lg">No products available.</p>
+        @endif
 
-</div>
+    </div>
 
 
 
@@ -347,10 +367,6 @@
         updateTotalPrice();
     });
 </script>
-
-
-
-
 
 </body>
 </html>
