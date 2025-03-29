@@ -156,17 +156,25 @@
 
                         <!-- Quantity Selector and Add to Cart Button -->
                         <div class="mt-6 flex items-center space-x-4">
-                            <div class="flex items-center border border-gray-300 rounded-full">
-                                <button id="decrement" class="px-4 py-2 text-gray-600 hover:text-gray-800 focus:outline-none">-</button>
-                                <input id="quantity" type="text" value="1" class="w-16 text-center text-gray-700 focus:outline-none">
-                                <button id="increment" class="px-4 py-2 text-gray-600 hover:text-gray-800 focus:outline-none">+</button>
-                            </div>
-                            <button type="submit" class="bg-[#F566BC] text-white px-14 py-2 rounded-full hover:bg-[#EC59A0] flex items-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.4 5.6a1 1 0 001 1.4h12a1 1 0 001-1.4L17 13M7 13H5.4M5.4 5L7 13m0 0h10m-6 8a2 2 0 100-4 2 2 0 000 4z" />
-                                </svg>
-                                Add to Cart
-                            </button>
+                        <form action="{{ route('cart.add') }}" method="POST" class="flex items-center space-x-4">
+        @csrf
+        <input type="hidden" name="product_id" value="{{ $product->product_id }}">
+        
+        <!-- Quantity Selector -->
+                        <div class="flex items-center border border-gray-300 rounded-full">
+                            <button type="button" id="decrement" class="px-4 py-2 text-gray-600 hover:text-gray-800 focus:outline-none">-</button>
+                            <input id="quantity" name="quantity" type="number" value="1" min="1" class="w-16 text-center text-gray-700 focus:outline-none">
+                            <button type="button" id="increment" class="px-4 py-2 text-gray-600 hover:text-gray-800 focus:outline-none">+</button>
+                        </div>
+
+                        <!-- Add to Cart Button -->
+                        <button type="submit" class="bg-gradient-to-r from-[#EBC980] to-[#EC59A0] text-white px-6 py-2 rounded-full hover:opacity-90 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.4 5.6a1 1 0 001 1.4h12a1 1 0 001-1.4L17 13M7 13H5.4M5.4 5L7 13m0 0h10m-6 8a2 2 0 100-4 2 2 0 000 4z" />
+                            </svg>
+                            Add to Cart
+                        </button>
+                    </form>
                             <!-- Wishlist Icon -->
                             <button class="text-gray-500 hover:text-[#F566BC] focus:outline-none">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -255,10 +263,6 @@
     </div>
 
 
-
-
-
-
     <footer class="bg-gradient-to-r from-[#EBC980] to-[#EC59A0] shadow-md w-full text-white py-8 mt-6 font-inter">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -337,6 +341,10 @@
         const totalPriceElement = document.getElementById("total-price");
         const incrementButton = document.getElementById("increment");
         const decrementButton = document.getElementById("decrement");
+
+        incrementButton.addEventListener("click", function () {
+            quantityInput.value = parseInt(quantityInput.value) + 1;
+        });
 
         function getPrice() {
             // Dynamically fetch the price from the DOM
