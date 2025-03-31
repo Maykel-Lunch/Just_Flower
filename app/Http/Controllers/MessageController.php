@@ -27,38 +27,24 @@ class MessageController extends Controller
         return view('auth.message', compact('store', 'messages'));
     }
 
-    // public function index(Request $request)
-    // {
-    //     if (!Auth::check()) {
-    //         return redirect('/login')->with('error', 'You must be logged in to view messages.');
-    //     }
-    
-    //     // Fetch the store details
-    //     $storeId = $request->query('store', 1);
-    //     $store = Store::select('store_id', 'store_logo', 'store_name')->find($storeId);
-    
-    //     if (!$store) {
-    //         return redirect()->back()->with('error', 'Store not found.');
-    //     }
-    
-    //     // Fetch messages where the store is either the sender or the receiver
-    //     // $messages = Message::with(['sender', 'receiver'])
-    //     //     ->where(function ($query) use ($storeId) {
-    //     //         $query->where('receiver_id', $storeId)
-    //     //               ->orWhere('sender_id', $storeId);
-    //     //     })
-    //     //     ->orderBy('sent_at', 'asc')
-    //     //     ->get();
+    public function store(Request $request)
+    {
+        if (!Auth::check()) {
+            return redirect('/login')->with('error', 'You must be logged in to send messages.');
+        }
 
-    //     $userId = Auth::id();
-    //     $messages = Message::with(['sender', 'receiver'])
-    //         ->where('sender_id', $userId)
-    //         ->orWhere('receiver_id', $userId)
-    //         ->orderBy('sent_at', 'asc')
-    //         ->get();
-    
-    //     return view('auth.message', compact('store', 'messages'));
-    // }
+        $request->validate([
+            'receiver_id' => 'required|integer|exists:users,id',
+            'content' => 'required|string|max:1000',
+        ]);
 
+        $message = new Message();
+        $message->sender_id = Auth::id();
+        $message->receiver_id = $request->input('receiver_id');
+        $message->content = $request->input('content');
+        $message->sent_at = now();
+        $message->save();
 
+        return redirect()->back()->with('success', 'Message sent successfully.');
+    }
 }

@@ -1,12 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Cart</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100 min-h-screen">
+@extends('layouts.app')
+
+@section('title', 'My Cart')
+
+@section('content')
     <div class="max-w-4xl mx-auto py-8">
         <h1 class="text-2xl font-bold text-gray-800 mb-6">Your Cart ({{ $cartItems->count() }})</h1>
 
@@ -97,5 +93,5 @@
             // Implement increment functionality (e.g., send an AJAX request to update the quantity)
         }
     </script>
-</body>
-</html>
+
+@endsection

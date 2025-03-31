@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\MessageController;
 use App\Models\Store;
 use App\Models\Product;
 
@@ -31,6 +32,9 @@ Route::get('logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::get('/search', [ProductController::class, 'search'])->name('search');
 Route::get('/product/{product_id?}', [ProductController::class, 'showProductDetails'])->name('product.details');
+
+Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
+Route::post('/messages', [MessageController::class, 'store'])->name('messages.store');
 
 Route::middleware(['auth'])->group(function () {
     Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');

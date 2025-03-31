@@ -1,13 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <title>Chat UI</title>
-</head>
-<body class="bg-gray-100 flex justify-center items-center h-screen">
+@extends('layouts.app')
 
+@section('title', 'Messages')
+
+@section('content')
     <div class="w-full max-w-md bg-white shadow-lg rounded-lg overflow-hidden">
         <!-- Header -->
         <div class="bg-[#F566BC] text-white p-4 flex items-center">
@@ -75,5 +70,4 @@
         @endif
     </div>
 
-</body>
-</html>
+@endsection
