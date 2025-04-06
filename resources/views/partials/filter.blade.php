@@ -4,47 +4,47 @@
         <!-- Category -->
         <div class="flex flex-col">
             <label class="text-sm font-medium mb-1">Category</label>
-            <select class="border border-gray-300 rounded p-2 w-40">
+            <select name="category" class="border border-gray-300 rounded p-2 w-40">
                 <option value="">All</option>
-                <option>Roses</option>
-                <option>Tulips</option>
-                <option>Orchids</option>
+                @foreach ($categories as $cat)
+                    <option value="{{ $cat }}" {{ request('category') == $cat ? 'selected' : '' }}>{{ $cat }}</option>
+                @endforeach
             </select>
         </div>
 
         <!-- Size -->
         <div class="flex flex-col">
             <label class="text-sm font-medium mb-1">Size</label>
-            <select class="border border-gray-300 rounded p-2 w-32">
+            <select name="size" class="border border-gray-300 rounded p-2 w-32">
                 <option value="">Any</option>
-                <option>Small</option>
-                <option>Medium</option>
-                <option>Large</option>
+                @foreach ($sizes as $sz)
+                    <option value="{{ $sz }}" {{ request('size') == $sz ? 'selected' : '' }}>{{ $sz }}</option>
+                @endforeach
             </select>
         </div>
 
         <!-- Flower Type -->
         <div class="flex flex-col">
             <label class="text-sm font-medium mb-1">Flower Type</label>
-            <select class="border border-gray-300 rounded p-2 w-40">
+            <select name="flower_type" class="border border-gray-300 rounded p-2 w-40">
                 <option value="">Any</option>
-                <option>Fresh</option>
-                <option>Artificial</option>
-                <option>Dried</option>
+                @foreach ($flowerTypes as $type)
+                    <option value="{{ $type }}" {{ request('flower_type') == $type ? 'selected' : '' }}>{{ $type }}</option>
+                @endforeach
             </select>
         </div>
 
         <!-- Occasion -->
         <div class="flex flex-col">
             <label class="text-sm font-medium mb-1">Occasion</label>
-            <select class="border border-gray-300 rounded p-2 w-44">
+            <select name="occasion" class="border border-gray-300 rounded p-2 w-44">
                 <option value="">All</option>
-                <option>Birthday</option>
-                <option>Anniversary</option>
-                <option>Wedding</option>
-                <option>Valentine's Day</option>
+                @foreach ($occasions as $oc)
+                    <option value="{{ $oc }}" {{ request('occasion') == $oc ? 'selected' : '' }}>{{ $oc }}</option>
+                @endforeach
             </select>
         </div>
+
 
         <!-- Price Range -->
         <div class="flex flex-col">
@@ -56,8 +56,6 @@
                 <option value="gt500" {{ request('price') == 'gt500' ? 'selected' : '' }}>More than ₱500</option>
             </select>
         </div>
-
-
 
         <!-- Apply Button -->
         <div class="flex">

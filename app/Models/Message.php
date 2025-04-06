@@ -32,6 +32,12 @@ class Message extends Model
 
     public function receiver()
     {
-        return $this->belongsTo(Store::class, 'receiver_id');
+        return $this->belongsTo(User::class, 'receiver_id');
+    }
+
+    // In Message model
+    public function store()
+    {
+        return $this->belongsTo(Store::class, 'owner_id', 'user_id');
     }
 }

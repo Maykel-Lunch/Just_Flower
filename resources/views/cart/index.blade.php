@@ -23,8 +23,11 @@
                         @foreach ($cartItems as $item)
                             <tr class="border-b">
                                 <td class="py-4 flex items-center">
-                                    <img src="{{ asset('path/to/product/image.jpg') }}" alt="Product Image" class="h-12 w-12 rounded mr-4">
-                                    <span class="text-gray-800">{{ $item->product ? $item->product->name : 'Product not found' }}</span>
+                                    <img src="{{ $item->product && $item->product->primaryImage ? asset($item->product->primaryImage->image_url) : 'https://via.placeholder.com/150' }}" 
+                                    alt="{{ $item->product ? $item->product->product_name : 'Product Image' }}" 
+                                    class="h-12 w-12 rounded mr-4">
+
+                                    <span class="text-gray-800">{{ $item->product ? $item->product->product_name : 'Product not found' }}</span>
                                 </td>
                                 <td class="py-4 text-center">
                                     <div class="flex items-center justify-center">

@@ -1,16 +1,17 @@
 
-<div x-data="{ openLogoutModal: false }">
-    <nav class="bg-gradient-to-r from-[#EBC980] to-[#EC59A0] shadow-md w-full">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16 items-center">
+<div x-data="{ openLogoutModal: false, isLoading: false}">
+    <nav class="bg-gradient-to-r from-[#EBC980] to-[#EC59A0] shadow-md w-full h-24 flex items-center">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+            <div class="flex justify-between items-center h-full">
                 <div class="flex items-center">
-                    <img src="{{ asset('flowershop_db/store_logo/Logo2.png') }}" alt="Logo" class="h-10 w-10 mr-2">
-                    <a href="#" class="text-white font-bold text-xl" style="font-family: 'Lora', serif;">
+                    <img src="{{ asset('flowershop_db/store_logo/Logo2.png') }}" alt="Logo" class="h-16 w-16 mr-2">
+                    <a href="/dashboard" class="text-white font-bold text-xl" style="font-family: 'Lora', serif;"
+                        @click.prevent="isLoading = true; window.location.href = '/dashboard'">
                         just_flowers
                     </a>
                     
                     <div class="ml-4 w-96 relative">
-                    <form action="{{ route('search') }}" method="GET" class="relative">
+                        <form action="{{ route('search') }}" method="GET" class="relative">
                             <input 
                                 type="text" 
                                 id="search-input"
@@ -33,50 +34,131 @@
                     </div>
 
                 </div>
+
                 <div class="flex items-center space-x-4">
-                    @if(auth()->check() && auth()->user()->profile_picture)
-                        <a href="/profile" class="text-white hover:text-gray-300 inline-flex flex-col items-center px-1 pt-1 text-xs font-medium">
-                            <img src="{{ auth()->user()->profile_picture }}" alt="Profile Picture" class="w-5 h-5 rounded-full">
-                            <span class="text-xs font-medium mt-1">{{ auth()->user()->name }}</span>
-                        </a>
-                    @elseif(auth()->check())
-                        <a href="/profile" class="text-white hover:text-gray-300 inline-flex flex-col items-center px-1 pt-1 text-xs font-medium">
-                            <div class="w-5 h-5 rounded-full bg-gray-300 flex items-center justify-center">
-                                <span class="text-gray-600 text-[8px] font-bold">
-                                    {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
-                                </span>
-                            </div>
-                            <span class="text-xs font-medium mt-1">{{ auth()->user()->name }}</span>
+                    @if (!Request::is('messages'))
+                        <a href="/messages" class="text-white hover:text-gray-300 inline-flex flex-col items-center px-1 pt-1 text-xs font-medium"
+                            @click.prevent="isLoading = true; window.location.href = '/messages'">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 3.866-3.582 7-8 7-1.294 0-2.515-.248-3.6-.688L3 20l1.688-4.4C3.248 14.515 3 13.294 3 12c0-3.866 3.582-7 8-7s8 3.134 8 7z" />
+                            </svg>
+                            <span>Chat</span>
                         </a>
                     @endif
-                    <a href="/messages" class="text-white hover:text-gray-300 inline-flex flex-col items-center px-1 pt-1 text-xs font-medium">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 3.866-3.582 7-8 7-1.294 0-2.515-.248-3.6-.688L3 20l1.688-4.4C3.248 14.515 3 13.294 3 12c0-3.866 3.582-7 8-7s8 3.134 8 7z" />
-                        </svg>
-                        <span>Chat</span>
-                    </a>
-                    <a href="/wishlist" class="text-white hover:text-gray-300 inline-flex flex-col items-center px-1 pt-1 text-xs font-medium">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+
+
+                    <a href="/wishlist" class="text-white hover:text-gray-300 inline-flex flex-col items-center px-1 pt-1 text-xs font-medium"
+                        @click.prevent="isLoading = true; window.location.href = '/wishlist'">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 21.364l-7.682-7.682a4.5 4.5 0 010-6.364z" />
                         </svg>
                         <span>Wishlist</span>
                     </a>
-                    <a href="/cart" class="text-white hover:text-gray-300 inline-flex flex-col items-center px-1 pt-1 text-xs font-medium">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.4 5.6a1 1 0 001 1.4h12a1 1 0 001-1.4L17 13M7 13H5.4M5.4 5L7 13m0 0h10m-6 8a2 2 0 100-4 2 2 0 000 4z" />
-                        </svg>
-                        <span>Cart</span>
-                    </a>
+
+                    @if (!Request::is('cart'))
+                        <a href="/cart" class="text-white hover:text-gray-300 inline-flex flex-col items-center px-1 pt-1 text-xs font-medium"
+                            @click.prevent="isLoading = true; window.location.href = '/cart'">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.4 5.6a1 1 0 001 1.4h12a1 1 0 001-1.4L17 13M7 13H5.4M5.4 5L7 13m0 0h10m-6 8a2 2 0 100-4 2 2 0 000 4z" />
+                            </svg>
+                            <span>Cart</span>
+                        </a>
+                    @endif
 
 
-                    <a href="#" @click.prevent="openLogoutModal = true" class="text-white hover:text-gray-300 inline-flex flex-col items-center px-1 pt-1 text-xs font-medium">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-black-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
-                            <polyline points="10 17 15 12 10 7" />
-                            <line x1="15" y1="12" x2="3" y2="12" />
-                        </svg>
-                        <span>Logout</span>
-                    </a>
+
+                    <div class="relative" x-data="{ open: false }">
+                        <!-- Profile Icon -->
+                        <button @click="open = !open" class="text-white hover:text-gray-300 inline-flex flex-col items-center px-1 pt-1 text-xs font-medium focus:outline-none">
+                            @if(auth()->check() && auth()->user()->profile_picture)
+                                <img src="{{ auth()->user()->profile_picture }}" alt="Profile Picture" class="w-8 h-8 rounded-full">
+                            @elseif(auth()->check())
+                                <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
+                                    <span class="text-gray-600 text-sm font-bold">
+                                        {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                                    </span>
+                                </div>
+                            @endif
+                            <span class="text-xs font-medium mt-1">{{ auth()->user()->name }}</span>
+                        </button>
+
+                        <!-- Dropdown Menu -->
+                        <div x-show="open" @click.away="open = false" 
+                            class="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg overflow-hidden z-50">
+                            <ul class="text-gray-700 text-sm">
+                                <!-- My Profile -->
+                                <li>
+                                    <a href="/profile" class="flex items-center px-4 py-2 hover:bg-gray-100">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <circle cx="12" cy="8" r="4" />
+                                            <path d="M4 20h16M4 20c0-4 4-6 8-6s8 2 8 6" />
+                                        </svg>
+                                        My Profile
+                                    </a>
+                                </li>
+                                <!-- Order History -->
+                                <li>
+                                    <a href="/orders" class="flex items-center px-4 py-2 hover:bg-gray-100">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <path d="M3 3h18v18H3V3z" />
+                                            <path d="M8 12h8M8 16h8M8 8h8" />
+                                        </svg>
+                                        Order History
+                                    </a>
+                                </li>
+                                <!-- Loyalty Rewards -->
+                                <li>
+                                    <a href="/rewards" class="flex items-center px-4 py-2 hover:bg-gray-100">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <path d="M12 17l-5 3 1-5-4-4 5-1L12 2l3 8 5 1-4 4 1 5z" />
+                                        </svg>
+                                        Loyalty Rewards
+                                    </a>
+                                </li>
+                                <!-- Gift Cards -->
+                                <li>
+                                    <a href="/gift-cards" class="flex items-center px-4 py-2 hover:bg-gray-100">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <rect x="2" y="6" width="20" height="12" rx="2" />
+                                            <path d="M12 6V4m-4 4h8m-6 4v2m4-2v2" />
+                                        </svg>
+                                        Gift Cards
+                                    </a>
+                                </li>
+                                <!-- Notifications -->
+                                <li>
+                                    <a href="/notifications" class="flex items-center px-4 py-2 hover:bg-gray-100">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <path d="M12 22c1.5 0 3-1.5 3-3H9c0 1.5 1.5 3 3 3zm6-6v-5c0-3.9-3-6-6-6s-6 2.1-6 6v5l-2 2v1h16v-1l-2-2z" />
+                                        </svg>
+                                        Notifications
+                                    </a>
+                                </li>
+                                <!-- Support & Help -->
+                                <li>
+                                    <a href="/support" class="flex items-center px-4 py-2 hover:bg-gray-100">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <path d="M12 18v-2m0-10a5 5 0 0 0-5 5c0 2.5 2 2 2 4h6c0-2 2-1.5 2-4a5 5 0 0 0-5-5z" />
+                                        </svg>
+                                        Support & Help
+                                    </a>
+                                </li>
+                                <!-- Divider -->
+                                <li><hr class="border-t border-gray-300 my-1"></li>
+                                <!-- Logout (Separate Section) -->
+                                <li>
+                                    <button @click="openLogoutModal = true" class="w-full flex items-center px-4 py-2 text-red-600 hover:bg-red-100">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-600 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                                            <polyline points="10 17 15 12 10 7" />
+                                            <line x1="15" y1="12" x2="3" y2="12" />
+                                        </svg>
+                                        Logout
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
 
                 </div>
             </div>
@@ -96,12 +178,14 @@
                         class="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400">
                     Cancel
                 </button>
-                <form method="POST" action="{{ route('logout') }}">
+
+                <form @submit.prevent="isLoading = true; $event.target.submit()" method="GET" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
                         Logout
                     </button>
                 </form>
+
             </div>
         </div>
     </div>

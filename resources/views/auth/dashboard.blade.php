@@ -4,7 +4,7 @@
 
 @section('content')
     <div class="max-w-7xl mx-auto px-6 py-8">
-        <div class="flex flex-col items-center justify-center min-h-screen space-y-8">
+        <div class="flex flex-col items-center min-h-screen space-y-8">
             <div class="flex justify-between items-center mb-4 w-full">
                 <h2 class="text-2xl font-bold">All Products</h2>
                 <button id="filterBtn" class="bg-white-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-full flex items-center space-x-2 border border-[#F566BC]">

@@ -43,8 +43,46 @@
                     <!-- Right Section: Product Details -->
                     <div class="w-2/4">
                         <h1 class="text-2xl font-bold text-gray-800">{{ $product->product_name }}</h1>
-                        <p class="text-gray-600 mt-2">{{ $product->description }}</p>
-                        <!-- <p class="text-lg font-semibold text-gray-800 mt-4">Price: ₱{{ number_format($product->price, 2) }}</p> -->
+                        <!-- <p class="text-gray-600 mt-2">{{ $product->description }}</p> -->
+                        
+                        <!-- uncomment this if you want this -->
+                        <!-- <div class="text-gray-600 mt-2">
+                            <p id="description" class="whitespace-pre-line line-clamp-3 relative overflow-hidden">
+                            {{ $product->description }}
+                                <span id="see-more" class="text-blue-500 cursor-pointer underline absolute right-0 bottom-0 bg-white pl-1">see more</span>
+                            </p>
+                            <p id="see-less" class="hidden text-blue-500 cursor-pointer underline mt-1">see less</p>
+                        </div> -->
+
+                        <!-- Comment this if you dont want this kind -->
+                        <div 
+                            x-data="{ 
+                                expanded: false,
+                                needsToggle: false,
+                                checkOverflow() {
+                                    this.$nextTick(() => {
+                                        const el = this.$refs.description;
+                                        this.needsToggle = el.scrollHeight > el.clientHeight;
+                                    });
+                                }
+                            }" 
+                            x-init="checkOverflow()" 
+                            @resize.window.debounce="checkOverflow()"
+                            class="mb-4 mt-1"
+                        >
+                            <div x-ref="description" class="overflow-hidden transition-all duration-300" 
+                                :style="expanded ? 'max-height: none' : 'max-height: 60px'">
+                                <p class="text-gray-600 whitespace-pre-line">{{ $product->description }}</p>
+                            </div>
+                            <button 
+                                x-show="needsToggle" 
+                                @click="expanded = !expanded" 
+                                class="text-blue-500 hover:text-blue-700 text-sm mt-1"
+                            >
+                                <span x-text="expanded ? 'See less' : 'See more'"></span>
+                            </button>
+                        </div>
+
                         <p class="price">Price: ₱<span id="product-price">{{ number_format($product->price, 2) }}</span></p>
 
                         <!-- Customization Options -->
@@ -106,18 +144,8 @@
                                 <span class="sr-only">Add to Wishlist</span>
                             </button>
 
-                            <!-- Ang random ng animation (fix this latur) -->
-                            <!-- Modal (Success Message) -->
-                            <div x-show="showModal" x-transition.opacity 
-                                @click="showModal = false; localStorage.removeItem('cartModal')"
-                                x-init="$el.classList.add('animate-bounce'); setTimeout(() => $el.classList.remove('animate-bounce'), 1000)" 
-                                class="fixed left-1/2 transform -translate-x-1/2 top-20 bg-gradient-to-r from-[#EBC980] to-[#EC59A0] text-white px-8 py-4 rounded-xl shadow-2xl cursor-pointer flex items-center space-x-4">
+                            @include('partials.cartModal')
 
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M3 12a9 9 0 1118 0 9 9 0 01-18 0z" />
-                                </svg>
-                                <span class="text-lg font-semibold">Successfully added to cart! Click to close.</span>
-                            </div>
 
                         </div>
                         
@@ -198,71 +226,107 @@
 
     </div>
 
-    <!-- Combine these js scripts into 1 or make this in a separate file -->
     <script>
+        
+        // Favorite toggle function
         function toggleFavorite(button) {
             const icon = button.querySelector('#heart-icon');
-            if (icon.getAttribute('fill') === 'none') {
-                icon.setAttribute('fill', 'red');
-            } else {
-                icon.setAttribute('fill', 'none');
-            }
+            icon.setAttribute('fill', icon.getAttribute('fill') === 'none' ? 'red' : 'none');
         }
-    </script>
 
-    <script>
-        document.getElementById('card_message').addEventListener('change', function () {
-            document.getElementById('message_box').classList.toggle('hidden', !this.checked);
+        // DOM Ready handler
+        document.addEventListener("DOMContentLoaded", function () {
+            // Gift message toggle
+            const cardMessageCheckbox = document.getElementById('card_message');
+            if (cardMessageCheckbox) {
+                cardMessageCheckbox.addEventListener('change', function () {
+                    document.getElementById('message_box').classList.toggle('hidden', !this.checked);
+                });
+            }
+
+            // Cart form submission
+            const cartForm = document.getElementById('cartForm');
+            if (cartForm) {
+                cartForm.addEventListener('submit', function() {
+                    localStorage.setItem('cartModal', 'true');
+                });
+            }
+
+            // Quantity and price handling
+            const quantityInput = document.getElementById("quantity");
+            if (quantityInput) {
+                const totalPriceElement = document.getElementById("total-price");
+                const incrementButton = document.getElementById("increment");
+                const decrementButton = document.getElementById("decrement");
+
+                function getPrice() {
+                    const priceElement = document.getElementById("product-price");
+                    if (!priceElement) return 0;
+                    return parseFloat(priceElement.textContent.replace(/[^0-9.]/g, ""));
+                }
+
+                function updateTotalPrice() {
+                    const price = getPrice();
+                    let quantity = parseInt(quantityInput.value) || 1;
+                    if (quantity < 1) quantity = 1;
+                    if (totalPriceElement) {
+                        totalPriceElement.textContent = (price * quantity).toLocaleString("en-PH", { 
+                            minimumFractionDigits: 2 
+                        });
+                    }
+                }
+
+                if (incrementButton) {
+                    incrementButton.addEventListener("click", function () {
+                        quantityInput.value = parseInt(quantityInput.value) + 1;
+                        updateTotalPrice();
+                    });
+                }
+
+                if (decrementButton) {
+                    decrementButton.addEventListener("click", function () {
+                        if (parseInt(quantityInput.value) > 1) {
+                            quantityInput.value = parseInt(quantityInput.value) - 1;
+                            updateTotalPrice();
+                        }
+                    });
+                }
+
+                quantityInput.addEventListener("input", updateTotalPrice);
+                updateTotalPrice();
+            }
         });
     </script>
 
-    <script>
-        document.getElementById('cartForm').addEventListener('submit', function() {
-            // Store modal state before form submits
-            localStorage.setItem('cartModal', 'true');
-        });
-    </script>
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            const quantityInput = document.getElementById("quantity");
-            const totalPriceElement = document.getElementById("total-price");
-            const incrementButton = document.getElementById("increment");
-            const decrementButton = document.getElementById("decrement");
+            const desc = document.getElementById("description");
+            const seeMore = document.getElementById("see-more");
+            const seeLess = document.getElementById("see-less");
 
-            incrementButton.addEventListener("click", function () {
-                quantityInput.value = parseInt(quantityInput.value) + 1;
+            seeMore.addEventListener("click", function () {
+                desc.classList.remove("line-clamp-3", "overflow-hidden", "relative");
+                seeMore.classList.add("hidden");
+                seeLess.classList.remove("hidden");
             });
 
-            function getPrice() {
-                // Dynamically fetch the price from the DOM
-                return parseFloat(document.getElementById("product-price").textContent.replace(/[^0-9.]/g, ""));
-            }
-
-            function updateTotalPrice() {
-                const price = getPrice(); // Fetch the current price
-                let quantity = parseInt(quantityInput.value) || 1;
-                if (quantity < 1) quantity = 1;
-                totalPriceElement.textContent = (price * quantity).toLocaleString("en-PH", { minimumFractionDigits: 2 });
-            }
-
-            incrementButton.addEventListener("click", function () {
-                quantityInput.value = parseInt(quantityInput.value) + 1;
-                updateTotalPrice();
+            seeLess.addEventListener("click", function () {
+                desc.classList.add("line-clamp-3", "overflow-hidden", "relative");
+                seeMore.classList.remove("hidden");
+                seeLess.classList.add("hidden");
             });
-
-            decrementButton.addEventListener("click", function () {
-                if (parseInt(quantityInput.value) > 1) {
-                    quantityInput.value = parseInt(quantityInput.value) - 1;
-                    updateTotalPrice();
-                }
-            });
-
-            quantityInput.addEventListener("input", updateTotalPrice);
-
-            updateTotalPrice();
         });
     </script>
+
+
+
+
+
+
+
+
+
 
 
 @endsection

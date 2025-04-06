@@ -11,7 +11,8 @@
 
 
 <!-- Change the design its too pink -->
-<div class="max-w-7xl mx-auto px-6 py-8 bg-white shadow-lg rounded-2xl p-6">
+<div class="max-w-7xl mx-auto px-6 py-4 bg-white shadow-lg rounded-2xl">
+
     <h2 class="text-2xl font-semibold text-pink-600 mb-4">Frequently Asked Questions</h2>
     <div class="space-y-4">
         @foreach ($faqs as $faq)

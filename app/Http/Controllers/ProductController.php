@@ -8,13 +8,70 @@ use App\Models\Store;
 
 class ProductController extends Controller
 {
+    // public function index(Request $request)
+    // {
+    //     $storeId = $request->query('store');
+    //     $store = Store::findOrFail($storeId);
+    //     $products = Product::where('store_id', $storeId)->with('primaryImage')->get();
+    //     return view('dashboard', compact('store','products'));
+    // }
+
+    // public function index(Request $request)
+    // {
+    //     $storeId = $request->query('store');
+    //     $priceFilter = $request->query('price');
+
+    //     $store = Store::findOrFail($storeId);
+
+    //     $productsQuery = Product::where('store_id', $storeId)->with('primaryImage');
+
+    //     // Apply price filter
+    //     if ($priceFilter === 'lt100') {
+    //         $productsQuery->where('price', '<', 100);
+    //     } elseif ($priceFilter === '100-500') {
+    //         $productsQuery->whereBetween('price', [100, 500]);
+    //     } elseif ($priceFilter === 'gt500') {
+    //         $productsQuery->where('price', '>', 500);
+    //     }
+
+    //     $products = $productsQuery->get();
+
+    //     return view('dashboard', compact('store', 'products'));
+    // }
+
     public function index(Request $request)
     {
         $storeId = $request->query('store');
-        $store = Store::findOrFail($storeId);
-        $products = Product::where('store_id', $storeId)->with('primaryImage')->get();
-        return view('dashboard', compact('store','products'));
+        $priceFilter = $request->query('price');
+
+        $productsQuery = Product::with('primaryImage');
+
+        // Optional: If store is provided, filter by it
+        $store = null;
+        if ($storeId) {
+            $store = Store::find($storeId);
+            if ($store) {
+                $productsQuery->where('store_id', $storeId);
+            }
+        }
+
+        // Price filter
+        if ($priceFilter === 'lt100') {
+            $productsQuery->where('price', '<', 100);
+        } elseif ($priceFilter === '100-500') {
+            $productsQuery->whereBetween('price', [100, 500]);
+        } elseif ($priceFilter === 'gt500') {
+            $productsQuery->where('price', '>', 500);
+        }
+
+        $products = $productsQuery->get();
+
+        return view('dashboard', compact('products', 'store'));
     }
+
+
+
+
 
     public function search(Request $request)
     {
