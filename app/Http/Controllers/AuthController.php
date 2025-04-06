@@ -58,17 +58,33 @@ class AuthController extends Controller
         return redirect()->route('dashboard')->withSuccess('Registration successful. Please log in.');
     }
 
-    // Show the dashboard
-    public function dashboard()
+
+    public function dashboard(Request $request)
     {
-        if (Auth::check()) {
-            $stores = Store::all(); 
-            $products = Product::all();
-            return view('auth.dashboard', compact('stores', 'products'));
+        if (!Auth::check()) {
+            return redirect()->route('login')->withErrors('You need to log in first.');
         }
 
-        return redirect()->route('login')->withErrors('You need to log in first.');
+        $stores = Store::all();
+        $priceFilter = $request->query('price');
+
+        // Start with all products
+        $productsQuery = Product::with('primaryImage');
+
+        // Apply price filter if present
+        if ($priceFilter === 'lt100') {
+            $productsQuery->where('price', '<', 100);
+        } elseif ($priceFilter === '100-500') {
+            $productsQuery->whereBetween('price', [100, 500]);
+        } elseif ($priceFilter === 'gt500') {
+            $productsQuery->where('price', '>', 500);
+        }
+
+        $products = $productsQuery->get();
+
+        return view('auth.dashboard', compact('stores', 'products'));
     }
+
 
     // Handle logout
     public function logout()

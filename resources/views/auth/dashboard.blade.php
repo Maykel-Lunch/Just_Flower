@@ -7,13 +7,16 @@
         <div class="flex flex-col items-center justify-center min-h-screen space-y-8">
             <div class="flex justify-between items-center mb-4 w-full">
                 <h2 class="text-2xl font-bold">All Products</h2>
-                <button class="bg-white-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-full flex items-center space-x-2 border border-[#F566BC]">
+                <button id="filterBtn" class="bg-white-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-full flex items-center space-x-2 border border-[#F566BC]">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="#F566BC">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707v4.586a1 1 0 01-.293.707l-2 2A1 1 0 0110 20v-6.586a1 1 0 00-.293-.707L3.293 6.707A1 1 0 013 6V4z" />
                     </svg>
                     <span class="text-[#F566BC]"><strong>Filter</strong></span>
                 </button>
             </div>
+
+            @include('partials.filter') <!-- Include the filter partial here -->
+
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 @foreach ($products as $product)
                     <div class="bg-white shadow-lg p-5 rounded-lg hover:shadow-xl transition-shadow duration-300 border border-[#F566BC] relative transform hover:scale-105 min-h-[350px] flex flex-col">
