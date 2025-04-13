@@ -8,9 +8,13 @@
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <script src="{{ asset('js/search.js') }}"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Great+Vibes&family=Quicksand:wght@700&family=Poppins:wght@700&family=Montserrat:wght@700&family=Lora:wght@700&family=Dancing+Script:wght@700&family=Pacifico&family=Amatic+SC:wght@700&display=swap" rel="stylesheet">
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
+
 
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col" x-data="{ isLoading: false }" x-init="$watch('isLoading', value => { if (value) document.body.classList.add('overflow-hidden'); else document.body.classList.remove('overflow-hidden'); })">
+<body class="bg-gray-100 min-h-screen flex flex-col" x-data="{ isLoading: false }" x-init="isLoading = true; setTimeout(() => isLoading = false, 1000)">
     
     <!-- Loading Animation : Edit this based on your preferred animation-->
     <div x-show="isLoading" x-cloak class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-[2000]">
