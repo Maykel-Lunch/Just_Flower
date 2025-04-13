@@ -58,10 +58,21 @@
                     @if (!Request::is('cart'))
                         <a href="/cart" class="text-white hover:text-gray-300 inline-flex flex-col items-center px-1 pt-1 text-xs font-medium"
                             @click.prevent="isLoading = true; window.location.href = '/cart'">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.4 5.6a1 1 0 001 1.4h12a1 1 0 001-1.4L17 13M7 13H5.4M5.4 5L7 13m0 0h10m-6 8a2 2 0 100-4 2 2 0 000 4z" />
-                            </svg>
-                            <span>Cart</span>
+                                <!-- Cart Icon with badge -->
+                                <div class="relative">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.4 5.6a1 1 0 001 1.4h12a1 1 0 001-1.4L17 13M7 13H5.4M5.4 5L7 13m0 0h10m-6 8a2 2 0 100-4 2 2 0 000 4z" />
+                                    </svg>
+
+                                    <!-- Cart Count Badge -->
+                                    <span class="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                                        {{ $cartItems->count() }}
+                                    </span>
+                                </div>
+
+                                <!-- Cart Label -->
+                                <span>Cart</span>
                         </a>
                     @endif
 
@@ -83,7 +94,7 @@
                         </button>
 
                         <!-- Dropdown Menu -->
-                        <div x-show="open" @click.away="open = false" 
+                        <div x-show="open" x-cloak @click.away="open = false" 
                             class="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg overflow-hidden z-50">
                             <ul class="text-gray-700 text-sm">
                                 <!-- My Profile -->
