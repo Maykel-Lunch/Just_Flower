@@ -5,39 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Store;
+use App\Models\Cart;
 
 class ProductController extends Controller
 {
-    // public function index(Request $request)
-    // {
-    //     $storeId = $request->query('store');
-    //     $store = Store::findOrFail($storeId);
-    //     $products = Product::where('store_id', $storeId)->with('primaryImage')->get();
-    //     return view('dashboard', compact('store','products'));
-    // }
-
-    // public function index(Request $request)
-    // {
-    //     $storeId = $request->query('store');
-    //     $priceFilter = $request->query('price');
-
-    //     $store = Store::findOrFail($storeId);
-
-    //     $productsQuery = Product::where('store_id', $storeId)->with('primaryImage');
-
-    //     // Apply price filter
-    //     if ($priceFilter === 'lt100') {
-    //         $productsQuery->where('price', '<', 100);
-    //     } elseif ($priceFilter === '100-500') {
-    //         $productsQuery->whereBetween('price', [100, 500]);
-    //     } elseif ($priceFilter === 'gt500') {
-    //         $productsQuery->where('price', '>', 500);
-    //     }
-
-    //     $products = $productsQuery->get();
-
-    //     return view('dashboard', compact('store', 'products'));
-    // }
 
     public function index(Request $request)
     {
@@ -101,12 +72,15 @@ class ProductController extends Controller
     {
         $product = Product::with('primaryImage', 'images')->findOrFail($id);
 
+         // Check if the product is in the wishlist
+        $isInWishlist = auth()->check() && auth()->user()->wishlist()->where('wishlists.product_id', $id)->exists();
+
         // Fetch random products (excluding the current product)
         $products = Product::where('product_id', '!=', $id)
             ->inRandomOrder()
             ->paginate(8);
 
-        return view('auth.product', compact('product', 'products'));
+        return view('auth.product', compact('product', 'products', 'isInWishlist'));
     }
 
 

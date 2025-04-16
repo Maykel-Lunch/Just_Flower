@@ -64,4 +64,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(Cart::class); 
     }
+
+    // In User.php
+    public function wishlist()
+    {
+        return $this->belongsToMany(Product::class, 'wishlists', 'user_id', 'product_id')
+                    ->withPivot('created_at');
+    }
+
+
+
 }
