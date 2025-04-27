@@ -11,7 +11,7 @@ use App\Models\Product;
 
 class AuthController extends Controller
 {
-
+    
     
     // Show the login form
     public function index()
@@ -66,6 +66,9 @@ class AuthController extends Controller
         return redirect()->route('login')->withSuccess('You have successfully logged out.');
     }
 
+    
+
+    // TRANSFER THIS 2 TO PRODUCT CONTROLLER (dashboard and getEnumValues function)
     // public function dashboard(Request $request)
     // {
     //     if (!Auth::check()) {
@@ -74,11 +77,13 @@ class AuthController extends Controller
 
     //     $stores = Store::all();
     //     $priceFilter = $request->query('price');
+    //     $categoryName = $request->query('category');
+    //     $flowerType = $request->query('flower_type');
+    //     $size = $request->query('size');
+    //     $occasion = $request->query('occasion');
 
-    //     // Start with all products
-    //     $productsQuery = Product::with('primaryImage');
+    //     $productsQuery = Product::with('primaryImage', 'category');
 
-    //     // Apply price filter if present
     //     if ($priceFilter === 'lt100') {
     //         $productsQuery->where('price', '<', 100);
     //     } elseif ($priceFilter === '100-500') {
@@ -87,12 +92,35 @@ class AuthController extends Controller
     //         $productsQuery->where('price', '>', 500);
     //     }
 
+    //     $productsQuery->whereHas('category', function ($query) use ($categoryName, $flowerType, $size, $occasion) {
+    //         if ($categoryName) {
+    //             $query->where('category_name', $categoryName);
+    //         }
+    //         if ($flowerType) {
+    //             $query->where('flower_type', $flowerType);
+    //         }
+    //         if ($size) {
+    //             $query->where('size', $size);
+    //         }
+    //         if ($occasion) {
+    //             $query->where('occasion', $occasion);
+    //         }
+    //     });
+
     //     $products = $productsQuery->get();
 
-    //     return view('auth.dashboard', compact('stores', 'products'));
+    //     // Get distinct filter options from product_category table
+    //     $categories = DB::table('product_category')->distinct()->pluck('category_name');
+    //     $flowerTypes = DB::table('product_category')->distinct()->pluck('flower_type');
+    //     $sizes = DB::table('product_category')->distinct()->pluck('size');
+    //     $occasions = DB::table('product_category')->distinct()->pluck('occasion');
+
+    //     return view('auth.dashboard', compact(
+    //         'stores', 'products',
+    //         'categories', 'flowerTypes', 'sizes', 'occasions'
+    //     ));
     // }
 
-    // TRANSFER THIS 2 TO PRODUCT CONTROLLER (dashboard and getEnumValues function)
     public function dashboard(Request $request)
     {
         if (!Auth::check()) {
@@ -139,9 +167,16 @@ class AuthController extends Controller
         $sizes = DB::table('product_category')->distinct()->pluck('size');
         $occasions = DB::table('product_category')->distinct()->pluck('occasion');
 
+        $mothersDayProducts = Product::with('primaryImage')
+            ->join('product_category', 'products.product_id', '=', 'product_category.product_id')
+            ->where('product_category.occasion', 'Mother\'s Day')
+            ->take(6)
+            ->get();
+
         return view('auth.dashboard', compact(
             'stores', 'products',
-            'categories', 'flowerTypes', 'sizes', 'occasions'
+            'categories', 'flowerTypes', 'sizes', 'occasions',
+            'mothersDayProducts'
         ));
     }
 
@@ -159,8 +194,5 @@ class AuthController extends Controller
             }
         }
         return $enum;
-    }
-
-
-    
+    }  
 }

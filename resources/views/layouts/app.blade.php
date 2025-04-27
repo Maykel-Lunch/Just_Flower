@@ -9,6 +9,10 @@
     <script src="{{ asset('js/search.js') }}"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Great+Vibes&family=Quicksand:wght@700&family=Poppins:wght@700&family=Montserrat:wght@700&family=Lora:wght@700&family=Dancing+Script:wght@700&family=Pacifico&family=Amatic+SC:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/wishlist.css') }}">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Swiper CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <style>
         [x-cloak] { display: none !important; }
@@ -34,9 +38,6 @@
 
     <div class="w-full mx-auto px-6 py-8 bg-gray-100 min-h-screen">
         @yield('content') <!-- Main content section -->
-        @if(Route::is('dashboard')) 
-            @include('partials.faq') <!-- Include the FAQ section only on the dashboard -->
-        @endif
     </div>
     
     

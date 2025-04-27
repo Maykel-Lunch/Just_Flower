@@ -19,11 +19,19 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
+
     public function boot(): void
     {
         View::composer('partials.navbar', function ($view) {
-            $cartItems = Auth::check() ? Auth::user()->cartItems : collect(); // Adjust based on your cart implementation
-            $view->with('cartItems', $cartItems);
+            // Fetch cart items
+            $cartItems = Auth::check() ? Auth::user()->cartItems : collect();
+
+            // Fetch wishlist items
+            $wishlistItems = Auth::check() ? Auth::user()->wishlist : collect();
+
+            // Pass both variables to the view
+            $view->with('cartItems', $cartItems)
+                ->with('wishlistItems', $wishlistItems);
         });
     }
 }

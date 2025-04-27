@@ -3,6 +3,8 @@
 @section('title', 'Dashboard')
 
 @section('content')
+    @include('partials.featuredProduct')
+
     <div class="max-w-7xl mx-auto px-6 py-8">
         <div class="flex flex-col items-center min-h-screen space-y-8">
             <div class="flex justify-between items-center mb-4 w-full">
@@ -55,7 +57,8 @@
             </div>
         </div>
     </div>
-
+    
+    @include('partials.faq') 
     <!-- Move this script to resources/js and include it properly -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -71,4 +74,6 @@
             });
         });
     </script>
+
+
 @endsection
