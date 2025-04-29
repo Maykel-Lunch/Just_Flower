@@ -63,8 +63,11 @@
                                 
                                 <!-- Price -->
                                 <div class="mt-auto">
-                                    <p class="text-xl font-bold text-red-500">${{ number_format($product->price, 2) }}</p>
-                                    
+                                    <p class="text-xl font-bold text-red-500">
+                                        <span class="line-through text-gray-500 text-base mr-2">${{ number_format($product->price, 2) }}</span>
+                                        <span class="text-red-500">${{ number_format($product->price * 0.9, 2) }}</span>
+                                    </p>
+                                                                
                                     <!-- Add to Cart Button -->
                                     <button
                                         class="mt-4 w-full bg-gradient-to-r from-[#EBC980] to-[#EC59A0] text-white py-2 rounded-md hover:opacity-90 transition-all font-medium"
