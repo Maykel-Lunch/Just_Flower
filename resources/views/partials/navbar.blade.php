@@ -1,4 +1,3 @@
-
 <div x-data="{ openLogoutModal: false, isLoading: false}">
     <nav class="bg-gradient-to-r from-[#EBC980] to-[#EC59A0] shadow-md w-full h-24 flex items-center">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
@@ -58,9 +57,11 @@
                                 </svg>
 
                                 <!-- Wishlist Count Badge -->
-                                <span class="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                                    {{ $wishlistItems->count() }}
-                                </span>
+                                @if ($wishlistItems->count() > 0)
+                                    <span class="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                                        {{ $wishlistItems->count() }}
+                                    </span>
+                                @endif
                             </div>
 
                             <!-- Wishlist Label -->
@@ -80,9 +81,11 @@
                                     </svg>
 
                                     <!-- Cart Count Badge -->
-                                    <span class="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                                        {{ $cartItems->count() }}
-                                    </span>
+                                    @if ($cartItems->count() > 0)
+                                        <span class="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                                            {{ $cartItems->count() }}
+                                        </span>
+                                    @endif
                                 </div>
 
                                 <!-- Cart Label -->
