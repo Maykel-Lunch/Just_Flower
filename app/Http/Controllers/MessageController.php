@@ -10,46 +10,45 @@ use App\Models\Store;
 
 class MessageController extends Controller
 {
-    // Working (if everything become worse)
-    // public function index(Request $request)
-    // {
-    //     if (!Auth::check()) {
-    //         return redirect('/login')->with('error', 'You must be logged in to view messages.');
-    //     }
-
-    //     // Fetch the store details
-    //     $storeId = $request->query('store', 1); 
-    //     $store = Store::select('store_id', 'store_logo', 'store_name')->find($storeId);
-
-    //     // Fetch messages for the store
-    //     $messages = Message::with(['sender', 'receiver']) ->where('receiver_id', $storeId)->orderBy('sent_at', 'asc')->get();
-
-    //     return view('auth.message', compact('store', 'messages'));
-    // }
-
+    /**
+     * Display a list of messages for the authenticated user.
+     */
     public function index()
     {
         $userId = Auth::id();
-        $messages = Message::where('sender_id', $userId)
-            ->orWhere('receiver_id', $userId)
-            ->orderBy('sent_at', 'desc')
-            ->with('store')
-            ->get();
+        $adminId = 1; // Assuming the admin's user ID is 1
+
+        // Fetch messages between the authenticated user and the admin
+        $messages = Message::where(function ($query) use ($userId, $adminId) {
+            $query->where('sender_id', $userId)
+                ->where('receiver_id', $adminId);
+        })->orWhere(function ($query) use ($userId, $adminId) {
+            $query->where('sender_id', $adminId)
+                ->where('receiver_id', $userId);
+        })->orderBy('sent_at', 'asc') // Order messages by the time they were sent
+        ->get();
 
         return view('auth.message', compact('messages'));
     }
 
+    /**
+     * Store a new message in the database.
+     */
     public function store(Request $request)
     {
+        $adminId = 1; // Assuming the admin's user ID is 1
+
+        // Validate the incoming request
         $request->validate([
-            'receiver_id' => 'required|exists:users,id',
-            'message_content' => 'required|string'
+            'message_content' => 'required|string|max:1000', // Limit message length
         ]);
 
+        // Create the message
         Message::create([
             'sender_id' => Auth::id(),
-            'receiver_id' => $request->receiver_id,
+            'receiver_id' => $adminId,
             'message_content' => $request->message_content,
+            'sent_at' => now(),
         ]);
 
         return redirect()->back()->with('success', 'Message sent successfully!');
