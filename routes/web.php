@@ -54,7 +54,11 @@ Route::middleware(['auth'])->group(function () {
 
 Route::get('/profile', [ProfileController::class, 'show'])->middleware('auth');
 
-
+Route::middleware(['auth'])->group(function () {
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile'); // Profile page
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit'); // Edit profile form
+    Route::post('/profile/update', [ProfileController::class, 'update'])->name('profile.update'); // Update profile
+});
 
 Route::middleware('auth')->group(function () {
     Route::get('/wishlist', [WishlistController::class, 'viewWishlistPage'])->name('wishlist.page');

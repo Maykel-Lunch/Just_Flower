@@ -97,18 +97,20 @@
 
                     <div class="relative" x-data="{ open: false }">
                         <!-- Profile Icon -->
-                        <button @click="open = !open" class="text-white hover:text-gray-300 inline-flex flex-col items-center px-1 pt-1 text-xs font-medium focus:outline-none">
-                            @if(auth()->check() && auth()->user()->profile_picture)
-                                <img src="{{ auth()->user()->profile_picture }}" alt="Profile Picture" class="w-8 h-8 rounded-full">
-                            @elseif(auth()->check())
-                                <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
-                                    <span class="text-gray-600 text-sm font-bold">
-                                        {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
-                                    </span>
-                                </div>
-                            @endif
-                            <span class="text-xs font-medium mt-1">{{ auth()->user()->name }}</span>
-                        </button>
+                            <button @click="open = !open" class="text-white hover:text-gray-300 inline-flex flex-col items-center px-1 pt-1 text-xs font-medium focus:outline-none">
+                                @if(auth()->check() && auth()->user()->profile)
+                                    <!-- Display Profile Picture -->
+                                    <img src="{{ auth()->user()->profile }}" alt="Profile Picture" class="w-8 h-8 rounded-full">
+                                @elseif(auth()->check())
+                                    <!-- Display Initials if No Profile Picture -->
+                                    <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
+                                        <span class="text-gray-600 text-sm font-bold">
+                                            {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                                        </span>
+                                    </div>
+                                @endif
+                                <span class="text-xs font-medium mt-1">{{ auth()->user()->name }}</span>
+                            </button>
 
                         <!-- Dropdown Menu -->
                         <div x-show="open" x-cloak @click.away="open = false" 
@@ -116,7 +118,7 @@
                             <ul class="text-gray-700 text-sm">
                                 <!-- My Profile -->
                                 <li>
-                                    <a href="/profile" class="flex items-center px-4 py-2 hover:bg-gray-100">
+                                    <a href="{{ route('profile') }}" class="flex items-center px-4 py-2 hover:bg-gray-100">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                             <circle cx="12" cy="8" r="4" />
                                             <path d="M4 20h16M4 20c0-4 4-6 8-6s8 2 8 6" />
@@ -173,11 +175,11 @@
                                 </li>
                                 <!-- Divider -->
                                 <li><hr class="border-t border-gray-300 my-1"></li>
-                                <!-- Logout (Separate Section) -->
+                                <!-- Logout -->
                                 <li>
                                     <button @click="openLogoutModal = true" class="w-full flex items-center px-4 py-2 text-red-600 hover:bg-red-100">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-600 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                                            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 1-2 2h-4" />
                                             <polyline points="10 17 15 12 10 7" />
                                             <line x1="15" y1="12" x2="3" y2="12" />
                                         </svg>
