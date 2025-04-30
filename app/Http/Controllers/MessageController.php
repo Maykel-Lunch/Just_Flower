@@ -68,7 +68,7 @@ class MessageController extends Controller
         // Validate the incoming request
         $request->validate([
             'message_content' => 'required|string|max:1000', // Limit message length
-            'receiver_id' => 'required|exists:users,id', // Ensure the receiver exists in the users table
+            'receiver_id' => 'required|exists:users,id',     // Ensure the receiver exists
         ]);
 
         // Create the message
@@ -82,6 +82,4 @@ class MessageController extends Controller
         return redirect()->route('messages.index', ['user_id' => $request->receiver_id])
             ->with('success', 'Message sent successfully!');
     }
-
-    
 }

@@ -1,74 +1,105 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container mx-auto py-8 flex space-x-4">
-    <!-- Sidebar: List of Users -->
-    <div class="w-1/4 bg-white shadow-md rounded-lg p-4">
-        <h2 class="text-lg font-bold mb-4">Chats</h2>
-        <ul class="space-y-4">
-            @foreach ($users as $user)
-                <li>
-                    <a href="{{ route('messages.index', ['user_id' => $user->id]) }}"
-                       class="flex items-center space-x-4 p-2 rounded-lg hover:bg-gray-100 {{ $selectedUserId == $user->id ? 'bg-gray-200' : '' }}">
-                        <div class="flex-shrink-0">
-                            <img src="{{ $user->profile_picture ?? asset('default-avatar.png') }}" alt="Avatar" class="h-10 w-10 rounded-full">
-                        </div>
-                        <div>
-                            <p class="font-bold text-gray-800">{{ $user->name }}</p>
-                            <p class="text-sm text-gray-500">Last message...</p>
-                        </div>
-                    </a>
-                </li>
-            @endforeach
-        </ul>
-    </div>
 
-    <!-- Chat Area -->
-    <div class="w-3/4 bg-white shadow-md rounded-lg p-6">
-        @if ($selectedUserId)
-            <div class="h-96 overflow-y-auto border-b pb-4 mb-4">
-                @foreach ($messages as $message)
-                    <div class="mb-4">
-                        @if ($message->sender_id === Auth::id())
-                            <!-- Admin's Message -->
-                            <div class="text-right">
-                                <p class="inline-block bg-[#F566BC] text-white px-4 py-2 rounded-lg">
-                                    {{ $message->message_content }}
-                                </p>
-                                <p class="text-sm text-gray-500 mt-1">{{ \Carbon\Carbon::parse($message->sent_at)->format('F j, Y, g:i a') }}</p>
+<div class="flex min-h-screen">
+    @if (isset($users)) <!-- Admin View -->
+        <!-- Sidebar for Admin: List of Users -->
+        <aside class="w-1/4 bg-white border-r flex flex-col overflow-y-auto p-4">
+            <h2 class="text-lg font-semibold mb-4">Users</h2>
+            <ul class="space-y-2">
+                @foreach ($users as $user)
+                    <li>
+                        <a href="{{ route('messages.index', ['user_id' => $user->id]) }}"
+                           class="block p-2 rounded-lg {{ isset($selectedUserId) && $selectedUserId == $user->id ? 'bg-gray-200' : '' }}">
+                            <div class="flex items-center space-x-3">
+                                <img src="{{ $user->profile_picture ?? 'https://via.placeholder.com/40' }}" 
+                                     alt="User Profile" 
+                                     class="w-10 h-10 rounded-full object-cover">
+                                <div>
+                                    <p class="font-semibold">{{ $user->name }}</p>
+                                    <p class="text-sm text-gray-500">{{ $user->recent_message }}</p>
+                                </div>
                             </div>
-                        @else
-                            <!-- User's Message -->
-                            <div class="text-left">
-                                <p class="inline-block bg-gray-200 text-gray-800 px-4 py-2 rounded-lg">
-                                    {{ $message->message_content }}
-                                </p>
-                                <p class="text-sm text-gray-500 mt-1">{{ \Carbon\Carbon::parse($message->sent_at)->format('F j, Y, g:i a') }}</p>
-                            </div>
-                        @endif
-                    </div>
+                        </a>
+                    </li>
                 @endforeach
+            </ul>
+        </aside>
+
+        <!-- Chat Area -->
+        <main class="flex flex-col flex-1 pb-6 rounded-lg">
+            <!-- Chat Header -->
+            <header class="bg-white border-b p-4 flex items-center justify-between">
+                <span class="text-lg font-semibold">Conversation</span>
+            </header>
+
+            <!-- Messages -->
+            <div class="flex-1 overflow-y-auto p-6 space-y-6">
+                @if (!empty($messages))
+                    @foreach ($messages as $message)
+                        <div class="space-y-1 {{ $message->sender_id === Auth::id() ? 'text-right ml-auto' : 'text-left mr-auto' }} max-w-[70%]">
+                            <p class="text-sm font-semibold">
+                                {{ $message->sender_id === Auth::id() ? 'You' : ($message->sender->name ?? 'Admin') }}
+                            </p>
+                            <div class="{{ $message->sender_id === Auth::id() ? 'bg-blue-100' : 'bg-gray-200' }} p-3 rounded-lg inline-block">
+                                {{ $message->message_content }}
+                            </div>
+                        </div>
+                    @endforeach
+                @else
+                    <p class="text-gray-500">No messages yet. Select a user to view the conversation.</p>
+                @endif
             </div>
 
-            <!-- Message Form -->
-            <form action="{{ route('messages.store') }}" method="POST" class="flex items-center space-x-4">
+            <!-- Input Box -->
+            @if (isset($selectedUserId))
+                <form action="{{ route('messages.store') }}" method="POST" class="border-t bg-white p-4 flex items-center space-x-3">
+                    @csrf
+                    <input type="hidden" name="receiver_id" value="{{ $selectedUserId }}">
+                    <input type="text" name="message_content" placeholder="Type a message..." 
+                           class="flex-1 border rounded-full px-4 py-2 focus:outline-none" required />
+                    <button type="submit" class="text-blue-500 text-xl"><i class="fas fa-paper-plane"></i></button>
+                </form>
+            @endif
+        </main>
+
+        @include('partials.right-sidebar')
+    @else <!-- Regular User View -->
+        <!-- Chat Area -->
+        <main class="flex flex-col flex-1 pb-6 rounded-lg">
+            <!-- Chat Header -->
+            <header class="bg-white border-b p-4 flex items-center justify-between">
+                <span class="text-lg font-semibold">Chat with Admin</span>
+            </header>
+
+            <!-- Messages -->
+            <div class="flex-1 overflow-y-auto p-6 space-y-6">
+                @forelse ($messages as $message)
+                    <div class="space-y-1 {{ $message->sender_id === Auth::id() ? 'text-right ml-auto' : 'text-left mr-auto' }} max-w-[70%]">
+                        <p class="text-sm font-semibold">
+                            {{ $message->sender_id === Auth::id() ? 'You' : ($message->sender->name ?? 'Admin') }}
+                        </p>
+                        <div class="{{ $message->sender_id === Auth::id() ? 'bg-blue-100' : 'bg-gray-200' }} p-3 rounded-lg inline-block">
+                            {{ $message->message_content }}
+                        </div>
+                    </div>
+                @empty
+                    <p class="text-gray-500">No messages yet. Start the conversation!</p>
+                @endforelse
+            </div>
+
+            <!-- Input Box -->
+            <form action="{{ route('messages.store') }}" method="POST" class="border-t bg-white p-4 flex items-center space-x-3">
                 @csrf
-                <input 
-                    type="text" 
-                    name="message_content" 
-                    id="message_content"
-                    placeholder="Type your message..." 
-                    class="flex-grow border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#F566BC]"
-                    required
-                >
-                <input type="hidden" name="receiver_id" value="{{ $selectedUserId }}">
-                <button type="submit" class="bg-[#F566BC] text-white px-6 py-2 rounded-full hover:bg-[#EC59A0]">
-                    Send
-                </button>
+                <input type="text" name="message_content" placeholder="Type a message..." 
+                       class="flex-1 border rounded-full px-4 py-2 focus:outline-none" required />
+                <button type="submit" class="text-blue-500 text-xl"><i class="fas fa-paper-plane"></i></button>
             </form>
-        @else
-            <p class="text-gray-600">Select a user to view the conversation.</p>
-        @endif
-    </div>
+        </main>
+
+        @include('partials.right-sidebar')
+    @endif
 </div>
+
 @endsection
