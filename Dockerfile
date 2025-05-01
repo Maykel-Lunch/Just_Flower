@@ -9,10 +9,12 @@ RUN apt-get update && apt-get install -y \
     libfreetype6-dev \
     libzip-dev \
     libonig-dev \
+    libpq-dev \
     unzip \
     git \
     curl \
     supervisor
+
 
 # Install PHP extensions
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg && \
