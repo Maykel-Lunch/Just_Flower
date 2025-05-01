@@ -23,7 +23,7 @@ WORKDIR /var/www
 COPY . .
 
 # Install Laravel dependencies
-RUN composer install --optimize-autoloader --no-dev
+RUN composer install --optimize-autoloader --no-dev --verbose
 
 # Expose port 9000 for PHP-FPM
 EXPOSE 9000
