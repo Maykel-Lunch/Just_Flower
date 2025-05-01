@@ -103,7 +103,13 @@ Route::middleware('auth')->group(function () {
 });
 
 
+// Route::middleware(['auth'])->group(function () {
+//     Route::get('/product', [OrderController::class, 'showOrders'])->name('orders.view');
+// });
 
+Route::middleware(['auth'])->group(function () {
+    Route::get('/check-free-shipping', [OrderController::class, 'checkFreeShipping'])->name('check.freeShipping');
+});
 
 
 
