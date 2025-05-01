@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y \
     libjpeg62-turbo-dev \
     libfreetype6-dev \
     libzip-dev \
+    libonig-dev \
     git \
     unzip \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
