@@ -18,31 +18,42 @@ RUN apt-get update && apt-get install -y \
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg && \
     docker-php-ext-install pdo pdo_mysql mbstring zip gd opcache
 
-# Install Composer
-RUN curl -sS https://getcomposer.org/installer | php \
-    && mv composer.phar /usr/local/bin/composer \
-    && chmod +x /usr/local/bin/composer
+# Install Composer globally
+RUN curl -sS https://getcomposer.org/installer | php && \
+    mv composer.phar /usr/local/bin/composer && \
+    chmod +x /usr/local/bin/composer
 
 # Set working directory
 WORKDIR /var/www
 
-# Copy Laravel project files
+# Copy project files
 COPY . .
 
 # Install PHP dependencies
 RUN composer install --optimize-autoloader --no-dev
 
-# Fix permissions
-RUN chown -R www-data:www-data /var/www
+# Set proper permissions
+RUN chown -R www-data:www-data /var/www && \
+    chmod -R 775 storage bootstrap/cache && \
+    chown -R www-data:www-data storage bootstrap/cache
+
+# Generate Laravel APP_KEY only if .env is present
+RUN if [ -f .env ]; then php artisan key:generate; fi
+
+# Run database migrations (important!)
+RUN php artisan migrate --force || echo "Migration failed but continuing..."
 
 # Copy Nginx config
 COPY deploy/nginx/default.conf /etc/nginx/sites-available/default
 
-# Copy Supervisor config to manage both services
+# Enable site config
+RUN ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
+
+# Copy Supervisor config
 COPY deploy/supervisord.conf /etc/supervisord.conf
 
 # Expose HTTP port
 EXPOSE 80
 
-# Start both Nginx and PHP-FPM using Supervisor
+# Run Supervisor to start Nginx + PHP-FPM
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
