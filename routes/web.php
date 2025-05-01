@@ -8,6 +8,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WishlistController;
+use App\Http\Controllers\GiftCardController;
 use App\Models\Store;
 use App\Models\Product;
 
@@ -59,8 +60,16 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit'); // Edit profile form
     Route::post('/profile/update', [ProfileController::class, 'update'])->name('profile.update'); // Update profile
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
-Route::get('/rewards', [RewardController::class, 'index'])->name('rewards.index');
-Route::get('/gift-cards', [GiftCardController::class, 'index'])->name('gift-cards.index');
+// Route::get('/rewards', [RewardController::class, 'index'])->name('rewards.index');
+
+Route::middleware(['auth'])->group(function () {
+    // Gift Card Routes
+    Route::post('/gift-cards/avail', [GiftCardController::class, 'availGiftCard'])->name('gift-cards.avail');
+    Route::get('/gift-cards', [GiftCardController::class, 'index'])->name('gift-cards.my');
+});
+
+
+// Route::get('/gift-cards', [GiftCardController::class, 'index'])->name('gift-cards.index');
 Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
@@ -92,6 +101,8 @@ Route::middleware('auth')->group(function () {
     // Manage Products Route
     Route::get('/admin/products', [ProductController::class, 'index'])->name('products.index');
 });
+
+
 
 
 
