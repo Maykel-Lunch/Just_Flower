@@ -1,32 +1,47 @@
-# Use the official PHP image as a base
+# Base image with PHP 8.2 and FPM
 FROM php:8.2-fpm
 
-# Install system dependencies and PHP extensions
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
+    nginx \
     libpng-dev \
     libjpeg62-turbo-dev \
     libfreetype6-dev \
     libzip-dev \
     libonig-dev \
-    git \
     unzip \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd pdo pdo_mysql mbstring zip opcache
+    git \
+    curl \
+    supervisor
+
+# Install PHP extensions
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg && \
+    docker-php-ext-install pdo pdo_mysql mbstring zip gd opcache
 
 # Install Composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+RUN curl -sS https://getcomposer.org/installer | php \
+    && mv composer /usr/local/bin/composer
 
-# Set the working directory
+# Set working directory
 WORKDIR /var/www
 
-# Copy the project files into the container
+# Copy Laravel project files
 COPY . .
 
-# Install Laravel dependencies
-RUN composer install --optimize-autoloader --no-dev --verbose
+# Install PHP dependencies
+RUN composer install --optimize-autoloader --no-dev
 
-# Expose port 9000 for PHP-FPM
-EXPOSE 9000
+# Fix permissions
+RUN chown -R www-data:www-data /var/www
 
-# Start PHP-FPM
-CMD ["php-fpm"]
+# Copy Nginx config
+COPY deploy/nginx/default.conf /etc/nginx/sites-available/default
+
+# Copy Supervisor config to manage both services
+COPY deploy/supervisord.conf /etc/supervisord.conf
+
+# Expose HTTP port
+EXPOSE 80
+
+# Start both Nginx and PHP-FPM using Supervisor
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
