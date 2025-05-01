@@ -1,5 +1,4 @@
-<div x-data="{ openLogoutModal: false, isLoading: false}">
-    <nav class="bg-gradient-to-r from-[#EBC980] to-[#EC59A0] shadow-md w-full h-24 flex items-center">
+<nav class="bg-gradient-to-r from-[#EBC980] to-[#EC59A0] shadow-md w-full h-24 flex items-center">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
             <div class="flex justify-between items-center h-full">
                 <div class="flex items-center">
@@ -164,15 +163,8 @@
                                         Notifications
                                     </a>
                                 </li>
-                                <!-- Support & Help -->
-                                <li>
-                                    <a href="/support" class="flex items-center px-4 py-2 hover:bg-gray-100">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                            <path d="M12 18v-2m0-10a5 5 0 0 0-5 5c0 2.5 2 2 2 4h6c0-2 2-1.5 2-4a5 5 0 0 0-5-5z" />
-                                        </svg>
-                                        Support & Help
-                                    </a>
-                                </li>
+                                
+                        
                                 <!-- Divider -->
                                 <li><hr class="border-t border-gray-300 my-1"></li>
                                 <!-- Logout -->
@@ -194,33 +186,3 @@
             </div>
         </div>
     </nav>
-
-    <!-- Logout Confirmation Modal -->
-    <div x-show="openLogoutModal" 
-         x-cloak 
-         class="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-[1000]"
-         x-transition.opacity.duration.300ms>
-        <div class="bg-white p-6 rounded-lg shadow-lg w-1/3 relative">
-            <h2 class="text-xl font-bold text-gray-800">Confirm Logout</h2>
-            <p class="text-gray-600 mt-2">Are you sure you want to log out?</p>
-            <div class="mt-4 flex justify-end space-x-2">
-                <button @click="openLogoutModal = false" 
-                        class="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400">
-                    Cancel
-                </button>
-
-                <form @submit.prevent="isLoading = true; $event.target.submit()" method="GET" action="{{ route('logout') }}">
-                    @csrf
-                    <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
-                        Logout
-                    </button>
-                </form>
-
-            </div>
-        </div>
-    </div>
-</div>
-
-
-
-

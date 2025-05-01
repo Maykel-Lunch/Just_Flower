@@ -31,13 +31,13 @@
                                 </td>
                                 <td class="py-4 text-center">
                                     <div class="flex items-center justify-center">
-                                        <button type="button" class="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300" onclick="decrementQuantity({{ $item->id }})">-</button>
-                                        <input type="number" value="{{ $item->quantity }}" min="1" class="w-12 text-center border mx-2 rounded" readonly>
-                                        <button type="button" class="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300" onclick="incrementQuantity({{ $item->id }})">+</button>
+                                        <button type="button" class="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300 decrement-btn" data-id="{{ $item->id }}">-</button>
+                                        <input type="number" id="quantity-{{ $item->id }}" value="{{ $item->quantity }}" min="1" class="w-12 text-center border mx-2 rounded" readonly>
+                                        <button type="button" class="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300 increment-btn" data-id="{{ $item->id }}">+</button>
                                     </div>
                                 </td>
                                 <td class="py-4 text-right text-gray-800">
-                                    ₱{{ number_format($item->price * $item->quantity, 2) }}
+                                    ₱<span id="total-{{ $item->id }}" class="item-total">{{ number_format($item->price * $item->quantity, 2) }}</span>
                                 </td>
                                 <td class="py-4 text-right">
                                     <form action="{{ route('cart.remove', $item->id) }}" method="POST">
@@ -59,7 +59,7 @@
                 <div class="mt-6">
                     <div class="flex justify-between text-gray-800">
                         <span>Subtotal</span>
-                        <span>₱{{ number_format($cartItems->sum(fn($item) => $item->price * $item->quantity), 2) }}</span>
+                        <span>₱<span id="cart-total">{{ number_format($cartItems->sum(fn($item) => $item->price * $item->quantity), 2) }}</span></span>
                     </div>
                     <div class="flex justify-between text-gray-800 mt-2">
                         <span>Shipping</span>
@@ -87,14 +87,62 @@
         @endif
     </div>
 
+    @section('scripts')
     <script>
-        function decrementQuantity(cartItemId) {
-            // Implement decrement functionality (e.g., send an AJAX request to update the quantity)
-        }
+    document.addEventListener('DOMContentLoaded', function () {
+        // Increment Quantity
+        document.querySelectorAll('.increment-btn').forEach(button => {
+            button.addEventListener('click', function () {
+                const itemId = this.dataset.id;
+                const quantityInput = document.getElementById(`quantity-${itemId}`);
+                let quantity = parseInt(quantityInput.value) || 0;
 
-        function incrementQuantity(cartItemId) {
-            // Implement increment functionality (e.g., send an AJAX request to update the quantity)
-        }
-    </script>
+                quantity += 1;
+                quantityInput.value = quantity;
 
+                updateCartTotal(itemId, quantity);
+            });
+        });
+
+        // Decrement Quantity
+        document.querySelectorAll('.decrement-btn').forEach(button => {
+            button.addEventListener('click', function () {
+                const itemId = this.dataset.id;
+                const quantityInput = document.getElementById(`quantity-${itemId}`);
+                let quantity = parseInt(quantityInput.value) || 0;
+
+                if (quantity > 1) {
+                    quantity -= 1;
+                    quantityInput.value = quantity;
+
+                    updateCartTotal(itemId, quantity);
+                }
+            });
+        });
+
+        // Update Cart Total
+        function updateCartTotal(itemId, quantity) {
+            const priceElement = document.getElementById(`price-${itemId}`);
+            const itemPrice = parseFloat(priceElement?.dataset.price || 0);
+
+            const totalElement = document.getElementById(`total-${itemId}`);
+            const itemTotal = itemPrice * quantity;
+            totalElement.textContent = itemTotal.toFixed(2);
+            totalElement.classList.add('item-total'); // Ensure class exists
+
+            // Recalculate overall cart total
+            let cartTotal = 0;
+            document.querySelectorAll('.item-total').forEach(item => {
+                const val = parseFloat(item.textContent);
+                if (!isNaN(val)) {
+                    cartTotal += val;
+                }
+            });
+
+            document.getElementById('cart-total').textContent = cartTotal.toFixed(2);
+        }
+    });
+</script>
+
+    @endsection
 @endsection

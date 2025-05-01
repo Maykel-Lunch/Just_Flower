@@ -18,7 +18,7 @@
             </div>
 
             @include('partials.filter') <!-- Include the filter partial here -->
-
+           
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 @foreach ($products as $product)
                     <div class="bg-white shadow-lg p-5 rounded-lg hover:shadow-xl transition-shadow duration-300 border border-[#F566BC] relative transform hover:scale-105 min-h-[350px] flex flex-col">
