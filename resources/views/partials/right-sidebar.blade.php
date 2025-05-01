@@ -6,7 +6,7 @@
             <img src="https://via.placeholder.com/60" class="rounded-full w-full h-full object-cover" alt="Profile">
             <img src="https://via.placeholder.com/20" class="absolute bottom-0 right-0 rounded-full border border-white" alt="Overlay">
           </div>
-          <p class="mt-2 font-semibold">CAPSTONE 💀</p>
+            <p class="mt-2 font-semibold text-lg">Just Flower </p>
         </div>
 
         <div class="flex justify-center space-x-4 text-purple-600 text-lg">
@@ -22,20 +22,20 @@
 
         <!-- Accordion -->
         <div class="space-y-2">
-          <details class="text-sm">
-            <summary class="font-semibold cursor-pointer flex justify-between items-center">Chat info <i class="fas fa-chevron-down"></i></summary>
+          <details class="text-base font-sans">
+            <summary class="font-bold cursor-pointer flex justify-between items-center">Chat info <i class="fas fa-chevron-down"></i></summary>
           </details>
 
-          <details class="text-sm">
-            <summary class="font-semibold cursor-pointer flex justify-between items-center">Customize chat <i class="fas fa-chevron-down"></i></summary>
+          <details class="text-base font-sans">
+            <summary class="font-bold cursor-pointer flex justify-between items-center">Customize chat <i class="fas fa-chevron-down"></i></summary>
           </details>
 
-          <details class="text-sm">
-            <summary class="font-semibold cursor-pointer flex justify-between items-center">Chat members <i class="fas fa-chevron-down"></i></summary>
+          <details class="text-base font-sans">
+            <summary class="font-bold cursor-pointer flex justify-between items-center">Chat members <i class="fas fa-chevron-down"></i></summary>
           </details>
 
-          <details open class="text-sm">
-            <summary class="font-semibold cursor-pointer flex justify-between items-center">Media, files and links <i class="fas fa-chevron-down"></i></summary>
+          <details open class="text-base font-sans">
+            <summary class="font-bold cursor-pointer flex justify-between items-center">Media, files and links <i class="fas fa-chevron-down"></i></summary>
             <ul class="pl-6 mt-2 space-y-1">
               <li><i class="fas fa-image mr-2"></i>Media</li>
               <li><i class="fas fa-file mr-2"></i>Files</li>
@@ -43,9 +43,8 @@
             </ul>
           </details>
 
-          <details class="text-sm">
-            <summary class="font-semibold cursor-pointer flex justify-between items-center">Privacy & support <i class="fas fa-chevron-down"></i></summary>
+          <details class="text-base font-sans">
+            <summary class="font-bold cursor-pointer flex justify-between items-center">Privacy & support <i class="fas fa-chevron-down"></i></summary>
           </details>
         </div>
       </div>
-    </aside>
