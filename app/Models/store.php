@@ -16,5 +16,8 @@ class Store extends Model
     protected $primaryKey = 'store_id';
     protected $fillable = ['owner_id', 'store_name', 'store_description', 'store_logo', 'store_address'];
 
+
+    // hhhhhhh
+
 }
  
