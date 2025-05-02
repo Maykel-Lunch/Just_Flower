@@ -29,9 +29,13 @@ class AppServiceProvider extends ServiceProvider
             // Fetch wishlist items
             $wishlistItems = Auth::check() ? Auth::user()->wishlist : collect();
 
-            // Pass both variables to the view
+            // Pass the authenticated user
+            $user = Auth::check() ? Auth::user() : null;
+
+            // Pass variables to the view
             $view->with('cartItems', $cartItems)
-                ->with('wishlistItems', $wishlistItems);
+                ->with('wishlistItems', $wishlistItems)
+                ->with('user', $user);
         });
     }
 }

@@ -1,4 +1,5 @@
-<nav class="bg-gradient-to-r from-[#EBC980] to-[#EC59A0] shadow-md w-full h-24 flex items-center">
+<div x-data="{ openLogoutModal: false, isLoading: false}">
+    <nav class="bg-gradient-to-r from-[#EBC980] to-[#EC59A0] shadow-md w-full h-24 flex items-center">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
             <div class="flex justify-between items-center h-full">
                 <div class="flex items-center">
@@ -186,3 +187,29 @@
             </div>
         </div>
     </nav>
+
+    <!-- Logout Confirmation Modal -->
+    <div x-show="openLogoutModal" 
+         x-cloak 
+         class="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-[1000]"
+         x-transition.opacity.duration.300ms>
+        <div class="bg-white p-6 rounded-lg shadow-lg w-1/3 relative">
+            <h2 class="text-xl font-bold text-gray-800">Confirm Logout</h2>
+            <p class="text-gray-600 mt-2">Are you sure you want to log out?</p>
+            <div class="mt-4 flex justify-end space-x-2">
+                <button @click="openLogoutModal = false" 
+                        class="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400">
+                    Cancel
+                </button>
+
+                <form @submit.prevent="isLoading = true; $event.target.submit()" method="GET" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+                        Logout
+                    </button>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
