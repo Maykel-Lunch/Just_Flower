@@ -75,6 +75,9 @@ class User extends Authenticatable
                     ->withPivot('created_at');
     }
 
-
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
 
 }
