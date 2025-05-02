@@ -148,9 +148,10 @@
                             <p class="text-lg font-semibold text-gray-800">
                                 Total Price: ₱<span id="total-price">{{ number_format($product->price, 2) }}</span>
                             </p>
+                            <input type="hidden" id="hidden-total-price" value="{{ $product->price }}">
 
                             <!-- Place Order Button -->
-                            <button type="submit" class="bg-gradient-to-r from-pink-500 to-yellow-400 text-white px-6 py-2 rounded-full text-lg font-semibold hover:from-pink-600 hover:to-yellow-500 transition duration-300 flex items-center justify-center">
+                            <button id="openCheckoutModal" type="submit" class="bg-gradient-to-r from-pink-500 to-yellow-400 text-white px-6 py-2 rounded-full text-lg font-semibold hover:from-pink-600 hover:to-yellow-500 transition duration-300 flex items-center justify-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M3 12a9 9 0 1118 0 9 9 0 01-18 0z" />
                                 </svg>
@@ -220,6 +221,11 @@
 
     </div>
 
+    
+    @include('partials.checkout')
+
+    
+
     <script>
         
         // Favorite toggle function
@@ -263,10 +269,19 @@
                     const price = getPrice();
                     let quantity = parseInt(quantityInput.value) || 1;
                     if (quantity < 1) quantity = 1;
+                    const totalPrice = price * quantity;
+
+                    // Update the total price display
                     if (totalPriceElement) {
-                        totalPriceElement.textContent = (price * quantity).toLocaleString("en-PH", { 
+                        totalPriceElement.textContent = totalPrice.toLocaleString("en-PH", { 
                             minimumFractionDigits: 2 
                         });
+                    }
+
+                    // Update the hidden input value
+                    const hiddenTotalPrice = document.getElementById("hidden-total-price");
+                    if (hiddenTotalPrice) {
+                        hiddenTotalPrice.value = totalPrice;
                     }
                 }
 
