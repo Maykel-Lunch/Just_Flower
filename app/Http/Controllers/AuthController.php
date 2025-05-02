@@ -54,9 +54,13 @@ class AuthController extends Controller
         $data = $request->all();
         $data['password'] = bcrypt($data['password']); // Hash the password
 
-        User::create($data);
+        $user = User::create($data); // Create the user
 
-        return redirect()->route('dashboard')->withSuccess('Registration successful. Please log in.');
+        // Log the user in
+        Auth::login($user);
+
+        // Redirect to the dashboard
+        return redirect()->route('dashboard')->withSuccess('Registration successful. Welcome to your dashboard!');
     }
 
     // Handle logout
