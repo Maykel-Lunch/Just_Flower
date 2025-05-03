@@ -28,7 +28,12 @@ class Message extends Model
      *
      * @var bool
      */
-    public $timestamps = false;
+    public $timestamps = true;
+
+
+    // Specify custom timestamp fields
+    const CREATED_AT = 'sent_at';
+    const UPDATED_AT = null;
 
     /**
      * The attributes that are mass assignable.
