@@ -100,7 +100,7 @@
                             <button @click="open = !open" class="text-white hover:text-gray-300 inline-flex flex-col items-center px-1 pt-1 text-xs font-medium focus:outline-none">
                                 @if(auth()->check() && auth()->user()->profile)
                                     <!-- Display Profile Picture -->
-                                    <img src="{{ auth()->user()->profile }}" alt="Profile Picture" class="w-8 h-8 rounded-full">
+                                    <img src="{{ asset(auth()->user()->profile) }}" alt="Profile Picture" class="w-8 h-8 rounded-full">
                                 @elseif(auth()->check())
                                     <!-- Display Initials if No Profile Picture -->
                                     <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">

@@ -31,7 +31,7 @@ Route::get('dashboard', [AuthController::class, 'dashboard'])->name('dashboard')
 Route::get('logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::get('/search', [ProductController::class, 'search'])->name('search');
-Route::get('/product/{product_id?}', [ProductController::class, 'showProductDetails'])->name('product.details');
+Route::get('/product/{product_id?}', [ProductController::class, 'showProductDetails'])->name('product.details')->middleware('auth');;
 
 
 // if successfully chnage the product controller
