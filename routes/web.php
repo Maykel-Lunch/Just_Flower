@@ -31,11 +31,8 @@ Route::get('dashboard', [AuthController::class, 'dashboard'])->name('dashboard')
 Route::get('logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::get('/search', [ProductController::class, 'search'])->name('search');
-Route::get('/product/{product_id?}', [ProductController::class, 'showProductDetails'])->name('product.details')->middleware('auth');;
+Route::get('/product/{product_id}', [ProductController::class, 'showProductDetails'])->name('product.details')->middleware('auth');;
 
-
-// if successfully chnage the product controller
-// Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 
 Route::middleware(['auth'])->group(function () {
     Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
@@ -49,9 +46,6 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/messages', [MessageController::class, 'store'])->name('messages.store');
 });
 
-// Route::get('/profile', function () {
-//     return view('auth.profile'); 
-// })->name('profile')->middleware('auth');
 
 Route::get('/profile', [ProfileController::class, 'show'])->middleware('auth');
 

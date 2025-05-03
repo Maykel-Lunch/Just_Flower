@@ -31,52 +31,54 @@
             <div class="swiper-wrapper pb-12">
                 @foreach ($mothersDayProducts as $product)
                     <div class="swiper-slide px-4">
-                        <div class="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-1 relative h-full flex flex-col">
-                            <!-- Product Image -->
-                            <div class="h-64 overflow-hidden flex-shrink-0">
-                                @if($product->primaryImage)
-                                    <img
-                                        src="{{ $product->primaryImage->image_url }}"
-                                        alt="{{ $product->product_name }}"
-                                        class="w-full h-full object-cover"
-                                    />
-                                @else
-                                    <div class="w-full h-full bg-gray-200 flex items-center justify-center">
-                                        <i class="fas fa-image text-gray-400 text-4xl"></i>
+                        <a href="{{ route('product.details', ['product_id' => $product->product_id]) }}" class="block">
+                            <div class="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-1 relative h-full flex flex-col">
+                                <!-- Product Image -->
+                                <div class="h-64 overflow-hidden flex-shrink-0">
+                                    @if($product->primaryImage)
+                                        <img
+                                            src="{{ $product->primaryImage->image_url }}"
+                                            alt="{{ $product->product_name }}"
+                                            class="w-full h-full object-cover"
+                                        />
+                                    @else
+                                        <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                                            <i class="fas fa-image text-gray-400 text-4xl"></i>
+                                        </div>
+                                    @endif
+                                </div>
+                                
+                                <!-- Product Details -->
+                                <div class="p-4 flex-grow flex flex-col">
+                                    <h3 class="text-lg font-semibold mb-2">{{ $product->product_name }}</h3>
+                                    
+                                    <!-- Rating (static for now) -->
+                                    <div class="flex items-center mb-2">
+                                        <i class="fas fa-star text-yellow-400"></i>
+                                        <i class="fas fa-star text-yellow-400"></i>
+                                        <i class="fas fa-star text-yellow-400"></i>
+                                        <i class="fas fa-star text-yellow-400"></i>
+                                        <i class="fas fa-star-half-alt text-yellow-400"></i>
+                                        <span class="text-gray-600 ml-2">4.8</span>
                                     </div>
-                                @endif
-                            </div>
-                            
-                            <!-- Product Details -->
-                            <div class="p-4 flex-grow flex flex-col">
-                                <h3 class="text-lg font-semibold mb-2">{{ $product->product_name }}</h3>
-                                
-                                <!-- Rating (static for now) -->
-                                <div class="flex items-center mb-2">
-                                    <i class="fas fa-star text-yellow-400"></i>
-                                    <i class="fas fa-star text-yellow-400"></i>
-                                    <i class="fas fa-star text-yellow-400"></i>
-                                    <i class="fas fa-star text-yellow-400"></i>
-                                    <i class="fas fa-star-half-alt text-yellow-400"></i>
-                                    <span class="text-gray-600 ml-2">4.8</span>
-                                </div>
-                                
-                                <!-- Price -->
-                                <div class="mt-auto">
-                                    <p class="text-xl font-bold text-red-500">
-                                        <span class="line-through text-gray-500 text-base mr-2">${{ number_format($product->price, 2) }}</span>
-                                        <span class="text-red-500">${{ number_format($product->price * 0.9, 2) }}</span>
-                                    </p>
-                                                                
-                                    <!-- Add to Cart Button -->
-                                    <button
-                                        class="mt-4 w-full bg-gradient-to-r from-[#EBC980] to-[#EC59A0] text-white py-2 rounded-md hover:opacity-90 transition-all font-medium"
-                                    >
-                                        <i class="fas fa-gift mr-2"></i> Add to Cart
-                                    </button>
+                                    
+                                    <!-- Price -->
+                                    <div class="mt-auto">
+                                        <p class="text-xl font-bold text-red-500">
+                                            <span class="line-through text-gray-500 text-base mr-2">${{ number_format($product->price, 2) }}</span>
+                                            <span class="text-red-500">${{ number_format($product->price * 0.9, 2) }}</span>
+                                        </p>
+                                                                    
+                                        <!-- Add to Cart Button -->
+                                        <button
+                                            class="mt-4 w-full bg-gradient-to-r from-[#EBC980] to-[#EC59A0] text-white py-2 rounded-md hover:opacity-90 transition-all font-medium"
+                                        >
+                                            <i class="fas fa-gift mr-2"></i> Add to Cart
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        </a>
                     </div>
                 @endforeach
             </div>
