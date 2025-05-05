@@ -172,12 +172,12 @@ document.addEventListener('DOMContentLoaded', function () {
         const originalPrice = extractPrice(totalPriceElement.textContent);
         const membershipLvl = "{{ strtolower(trim($cardType)) }}".toLowerCase().trim();
 
-        console.log('[Discount Debug] Membership:', membershipLvl);
-        console.log('[Discount Debug] Original Price:', originalPrice);
+        // console.log('[Discount Debug] Membership:', membershipLvl);
+        // console.log('[Discount Debug] Original Price:', originalPrice);
 
         let discount = 0;
 
-        // Apply discount based on membership level and price threshold
+        // Apply discount based on membership level and price threshold 
         if (membershipLvl.includes('silver') && originalPrice >= 500) {
             discount = Math.min(originalPrice * 0.05, 50); // 5% discount, max ₱50
         } else if (membershipLvl.includes('gold') && originalPrice >= 500) {
@@ -186,7 +186,7 @@ document.addEventListener('DOMContentLoaded', function () {
             discount = originalPrice * 0.15; // 15% discount, no max
         }
 
-        console.log('[Discount Debug] Calculated Discount:', discount);
+        // console.log('[Discount Debug] Calculated Discount:', discount);
 
         // Update discount display
         discountAmountElement.textContent = `-₱${discount.toFixed(2)}`;
