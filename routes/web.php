@@ -101,11 +101,13 @@ Route::middleware('auth')->group(function () {
 //     Route::get('/product', [OrderController::class, 'showOrders'])->name('orders.view');
 // });
 
-Route::middleware(['auth'])->group(function () {
-    Route::get('/check-free-shipping', [OrderController::class, 'checkFreeShipping'])->name('check.freeShipping');
-});
+// Route::middleware(['auth'])->group(function () {
+//     Route::get('/check-free-shipping', [OrderController::class, 'checkFreeShipping'])->name('check.freeShipping');
+// });
 
 
+
+Route::get('/checkout', [OrderController::class, 'checkout'])->name('checkout')->middleware('auth');
 
 
 

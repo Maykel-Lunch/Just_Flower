@@ -25,4 +25,8 @@ class GiftCard extends Model
         'member_code',
     ];
     
+    public function user()
+{
+    return $this->belongsTo(User::class, 'user_id', 'id');
+}
 }

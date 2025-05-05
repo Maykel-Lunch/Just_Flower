@@ -80,4 +80,9 @@ class User extends Authenticatable
         return $this->hasMany(Order::class);
     }
 
+public function giftCard()
+{
+    return $this->hasOne(GiftCard::class, 'user_id', 'id');
+}
+
 }

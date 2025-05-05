@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Product;
 use App\Models\Store;
 use App\Models\Cart;
@@ -135,19 +136,73 @@ class ProductController extends Controller
 
 
     public function showProductDetails($id)
-    {
-        $product = Product::with('primaryImage', 'images')->findOrFail($id);
+{
+    $product = Product::with('primaryImage', 'images')->findOrFail($id);
 
-         // Check if the product is in the wishlist
-        $isInWishlist = auth()->check() && auth()->user()->wishlist()->where('wishlists.product_id', $id)->exists();
+    $isInWishlist = auth()->check() && auth()->user()->wishlist()->where('wishlists.product_id', $id)->exists();
 
-        // Fetch random products (excluding the current product)
-        $products = Product::where('product_id', '!=', $id)
-            ->inRandomOrder()
-            ->paginate(8);
+    $products = Product::where('product_id', '!=', $id)
+        ->inRandomOrder()
+        ->paginate(8);
 
-        return view('auth.product', compact('product', 'products', 'isInWishlist'));
+    $user = Auth::user();
+    $shippingAddress = $user->address ?? 'No address provided';
+    $contactEmail = $user->email;
+    $contactPhone = $user->phone ?? 'No phone number provided';
+
+    $membershipLvl = $user->giftCard->membership_lvl ?? null;
+    $hasOrders = $user->orders()->exists();
+    $cardType = null;
+    $cardBg = null;
+    $freeShipping = false;
+    $discount = 0;
+    $discountDetails = null;
+
+    if ($membershipLvl) {
+        if ($membershipLvl === 'silver') {
+            $cardType = 'Silver Member';
+            $cardBg = 'from-gray-400 to-gray-600';
+            $freeShipping = true;
+
+            // Silver discount logic
+            $discountDetails = '5% discount capped at ₱50, minimum spend of ₱500';
+            if ($product->price >= 500) {
+                $discount = min($product->price * 0.05, 50);
+            }
+        } elseif ($membershipLvl === 'gold') {
+            $cardType = 'Gold Member';
+            $cardBg = 'from-yellow-500 to-yellow-700';
+            $freeShipping = true;
+
+            // Gold discount logic
+            $discountDetails = '10% discount capped at ₱100, minimum spend of ₱500';
+            if ($product->price >= 500) {
+                $discount = min($product->price * 0.10, 100);
+            }
+        } elseif ($membershipLvl === 'platinum') {
+            $cardType = 'Platinum Member';
+            $cardBg = 'from-green-400 to-blue-500';
+            $freeShipping = true;
+
+            // Platinum discount logic
+            $discountDetails = '15% discount, minimum spend of ₱200';
+            if ($product->price >= 200) {
+                $discount = $product->price * 0.15;
+            }
+        }
+    } elseif (!$membershipLvl && !$hasOrders) {
+        $cardType = 'Welcome Card';
+        $cardBg = 'from-yellow-400 to-pink-500';
+        $freeShipping = true;
+    } elseif (!$membershipLvl && $hasOrders) {
+        $cardType = 'Non-Member';
+        $cardBg = null;
     }
+
+    return view('auth.product', compact(
+        'product', 'products', 'isInWishlist', 'user', 'shippingAddress', 'contactEmail', 'contactPhone', 'cardType', 'cardBg', 'freeShipping', 'discount', 'discountDetails', 'membershipLvl', 'hasOrders', 'cardType', 'cardBg', 'freeShipping', 'discount', 'discountDetails', 'membershipLvl', 'hasOrders', 'cardType', 'cardBg', 'freeShipping', 'discount', 'discountDetails', 'membershipLvl',
+    ));
+}
 
 
 }

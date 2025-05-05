@@ -15,32 +15,32 @@ class OrderController extends Controller
     //     return view('orders.index', compact('orders'));
     // }
 
-    public function checkFreeShipping()
-    {
-        $user = auth()->user(); // Get the authenticated user
+    // public function checkFreeShipping()
+    // {
+    //     $user = auth()->user(); // Get the authenticated user
 
-        // Check if the user has any previous orders
-        $hasOrderHistory = $user->orders()->exists();
+    //     // Check if the user has any previous orders
+    //     $hasOrderHistory = $user->orders()->exists();
 
-        // Determine free shipping eligibility
-        $freeShipping = !$hasOrderHistory; // Free shipping if no order history
+    //     // Determine free shipping eligibility
+    //     $freeShipping = !$hasOrderHistory; // Free shipping if no order history
 
-        // Return the result as JSON (useful for AJAX or API calls)
-        return response()->json(['freeShipping' => $freeShipping]);
-    }
+    //     // Return the result as JSON (useful for AJAX or API calls)
+    //     return response()->json(['freeShipping' => $freeShipping]);
+    // }
 
     
-    public function showOrders()
-    {
-        $user = auth()->user(); // Get the authenticated user
+    // public function showOrders()
+    // {
+    //     $user = auth()->user(); // Get the authenticated user
     
-        // Check if the user has an order history
-        $hasOrderHistory = $user->orders()->exists();
+    //     // Check if the user has an order history
+    //     $hasOrderHistory = $user->orders()->exists();
     
-        // Determine free shipping eligibility
-        $freeShipping = !$hasOrderHistory; // Free shipping if no order history
+    //     // Determine free shipping eligibility
+    //     $freeShipping = !$hasOrderHistory; // Free shipping if no order history
     
-        // Pass the variables to the view
-        return view('product', compact('freeShipping'));
-    }
+    //     // Pass the variables to the view
+    //     return view('product', compact('freeShipping'));
+    // }
 }

@@ -43,16 +43,6 @@
                     <!-- Right Section: Product Details -->
                     <div class="w-2/4">
                         <h1 class="text-2xl font-bold text-gray-800">{{ $product->product_name }}</h1>
-                        <!-- <p class="text-gray-600 mt-2">{{ $product->description }}</p> -->
-                        
-                        <!-- uncomment this if you want this -->
-                        <!-- <div class="text-gray-600 mt-2">
-                            <p id="description" class="whitespace-pre-line line-clamp-3 relative overflow-hidden">
-                            {{ $product->description }}
-                                <span id="see-more" class="text-blue-500 cursor-pointer underline absolute right-0 bottom-0 bg-white pl-1">see more</span>
-                            </p>
-                            <p id="see-less" class="hidden text-blue-500 cursor-pointer underline mt-1">see less</p>
-                        </div> -->
 
                         <!-- Comment this if you dont want this kind -->
                         <div 
@@ -222,98 +212,125 @@
     </div>
 
     
-    @include('partials.checkout')
+    @include('partials.checkout', [
+        'user' => Auth::user(),
+        'shippingAddress' => $shippingAddress ?? 'No address provided',
+        'contactEmail' => $contactEmail ?? 'No email provided',
+        'contactPhone' => $contactPhone ?? 'No phone number provided',
+        'product' => $product,
+        'cardType' => $cardType,
+        'cardBg' => $cardBg,
+        'freeShipping' => $freeShipping,
+        'discount' => $discount,
+        'discountdetails' => $discountDetails,
+        'membershipLvl' => $membershipLvl,
+    ])
 
     
 
-    <script>
-        
+
+
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
         // Favorite toggle function
         function toggleFavorite(button) {
             const icon = button.querySelector('#heart-icon');
             icon.setAttribute('fill', icon.getAttribute('fill') === 'none' ? 'red' : 'none');
         }
 
-        // DOM Ready handler
-        document.addEventListener("DOMContentLoaded", function () {
-            // Gift message toggle
-            const cardMessageCheckbox = document.getElementById('card_message');
-            if (cardMessageCheckbox) {
-                cardMessageCheckbox.addEventListener('change', function () {
-                    document.getElementById('message_box').classList.toggle('hidden', !this.checked);
+        // Gift message toggle
+        const cardMessageCheckbox = document.getElementById('card_message');
+        if (cardMessageCheckbox) {
+            cardMessageCheckbox.addEventListener('change', function () {
+                document.getElementById('message_box').classList.toggle('hidden', !this.checked);
+            });
+        }
+
+        // Cart form submission
+        const cartForm = document.getElementById('cartForm');
+        if (cartForm) {
+            cartForm.addEventListener('submit', function() {
+                localStorage.setItem('cartModal', 'true');
+            });
+        }
+
+        // Quantity, price handling and modal quantity update
+        const quantityInput = document.getElementById("quantity");
+        if (quantityInput) {
+            const totalPriceElement = document.getElementById("total-price");
+            const incrementButton = document.getElementById("increment");
+            const decrementButton = document.getElementById("decrement");
+            const modalQuantityElement = document.querySelector('#checkoutModal .modal-quantity');
+
+            function getPrice() {
+                const priceElement = document.getElementById("product-price");
+                if (!priceElement) return 0;
+                return parseFloat(priceElement.textContent.replace(/[^0-9.]/g, ""));
+            }
+
+            function updateTotalPrice() {
+                const price = getPrice();
+                let quantity = parseInt(quantityInput.value) || 1;
+                if (quantity < 1) quantity = 1;
+                const totalPrice = price * quantity;
+
+                // Update the total price display
+                if (totalPriceElement) {
+                    totalPriceElement.textContent = totalPrice.toLocaleString("en-PH", { 
+                        minimumFractionDigits: 2 
+                    });
+                }
+
+                // Update the hidden input value
+                const hiddenTotalPrice = document.getElementById("hidden-total-price");
+                if (hiddenTotalPrice) {
+                    hiddenTotalPrice.value = totalPrice;
+                }
+            }
+
+            const updateModalQuantity = () => {
+                const quantity = parseInt(quantityInput.value) || 1;
+                if (modalQuantityElement) {
+                    modalQuantityElement.textContent = quantity;
+                }
+            };
+
+            if (incrementButton) {
+                incrementButton.addEventListener("click", function () {
+                    quantityInput.value = parseInt(quantityInput.value) + 1;
+                    updateTotalPrice();
+                    updateModalQuantity();
                 });
             }
 
-            // Cart form submission
-            const cartForm = document.getElementById('cartForm');
-            if (cartForm) {
-                cartForm.addEventListener('submit', function() {
-                    localStorage.setItem('cartModal', 'true');
-                });
-            }
-
-            // Quantity and price handling
-            const quantityInput = document.getElementById("quantity");
-            if (quantityInput) {
-                const totalPriceElement = document.getElementById("total-price");
-                const incrementButton = document.getElementById("increment");
-                const decrementButton = document.getElementById("decrement");
-
-                function getPrice() {
-                    const priceElement = document.getElementById("product-price");
-                    if (!priceElement) return 0;
-                    return parseFloat(priceElement.textContent.replace(/[^0-9.]/g, ""));
-                }
-
-                function updateTotalPrice() {
-                    const price = getPrice();
-                    let quantity = parseInt(quantityInput.value) || 1;
-                    if (quantity < 1) quantity = 1;
-                    const totalPrice = price * quantity;
-
-                    // Update the total price display
-                    if (totalPriceElement) {
-                        totalPriceElement.textContent = totalPrice.toLocaleString("en-PH", { 
-                            minimumFractionDigits: 2 
-                        });
-                    }
-
-                    // Update the hidden input value
-                    const hiddenTotalPrice = document.getElementById("hidden-total-price");
-                    if (hiddenTotalPrice) {
-                        hiddenTotalPrice.value = totalPrice;
-                    }
-                }
-
-                if (incrementButton) {
-                    incrementButton.addEventListener("click", function () {
-                        quantityInput.value = parseInt(quantityInput.value) + 1;
+            if (decrementButton) {
+                decrementButton.addEventListener("click", function () {
+                    if (parseInt(quantityInput.value) > 1) {
+                        quantityInput.value = parseInt(quantityInput.value) - 1;
                         updateTotalPrice();
-                    });
-                }
-
-                if (decrementButton) {
-                    decrementButton.addEventListener("click", function () {
-                        if (parseInt(quantityInput.value) > 1) {
-                            quantityInput.value = parseInt(quantityInput.value) - 1;
-                            updateTotalPrice();
-                        }
-                    });
-                }
-
-                quantityInput.addEventListener("input", updateTotalPrice);
-                updateTotalPrice();
+                        updateModalQuantity();
+                    }
+                });
             }
-        });
-    </script>
 
+            quantityInput.addEventListener("input", function() {
+                updateTotalPrice();
+                updateModalQuantity();
+            });
+            
+            // Initialize values
+            updateTotalPrice();
+            updateModalQuantity();
+        }
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const desc = document.getElementById("description");
-            const seeMore = document.getElementById("see-more");
-            const seeLess = document.getElementById("see-less");
+        // Description show more/less toggle
+        const desc = document.getElementById("description");
+        const seeMore = document.getElementById("see-more");
+        const seeLess = document.getElementById("see-less");
 
+        if (desc && seeMore && seeLess) {
             seeMore.addEventListener("click", function () {
                 desc.classList.remove("line-clamp-3", "overflow-hidden", "relative");
                 seeMore.classList.add("hidden");
@@ -325,8 +342,10 @@
                 seeMore.classList.remove("hidden");
                 seeLess.classList.add("hidden");
             });
-        });
-    </script>
+        }
+    });
+</script>
+    
 
 
 
