@@ -122,3 +122,6 @@ Route::put('/admin/orders/{order:order_id}/status', [OrderController::class, 'up
 Route::get('/api/orders', [OrderController::class, 'getOrders'])->name('api.orders');
 
 
+Route::post('/orders/store', [OrderController::class, 'store'])->name('orders.store');
+
+

@@ -138,20 +138,92 @@
                             <span class="text-lg font-bold">Total Payment</span>
                             <span class="text-2xl font-bold text-orange-500">₱1,710</span>
                         </div>
-                        <div class="flex justify-between">
+                        <!-- <div class="flex justify-between">
                             <span class="text-gray-600">Total Savings</span>
-                            <span class="text-green-600">-₱110</span>
-                        </div>
+                            <span id = "discount-amount" class="text-green-600">-₱0.00</span>
+                        </div> -->
                     </div>
-                    <button class="w-full bg-orange-500 hover:bg-orange-600 text-white py-4 rounded-lg font-bold text-lg transition-colors">
-                        Place Order Now
-                    </button>
+                    <!-- Updated Form -->
+                    <form action="{{ route('orders.store') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="total_amount" id="hidden-total-amount" value="0">
+                        <input type="hidden" name="final_amount" id="hidden-final-amount" value="1710"> <!-- Replace with dynamic value -->
+                        <input type="hidden" name="quantity" value="1"> <!-- Replace with dynamic quantity -->
+                        <input type="hidden" name="product_name" value="{{ $product->product_name }}"> <!-- Replace with dynamic product name -->
+                        <button type="submit" class="w-full bg-orange-500 hover:bg-orange-600 text-white py-4 rounded-lg font-bold text-lg transition-colors">
+                            Place Order Now
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Success Modal -->
+<div id="successModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+    <div class="h-full w-full flex items-center justify-center">
+        <div class="bg-white rounded-lg shadow-lg p-6 w-96 text-center">
+            <h2 class="text-2xl font-bold text-green-600 mb-4">Order Placed Successfully!</h2>
+            <p class="text-gray-700 mb-6">Thank you for your purchase. Your order has been placed successfully.</p>
+            <button id="closeSuccessModal" class="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-lg">
+                Close
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const successModal = document.getElementById('successModal');
+        const closeSuccessModal = document.getElementById('closeSuccessModal');
+
+        // Check if the success message exists in the session
+        @if(session('success'))
+            successModal.classList.remove('hidden');
+        @endif
+
+        // Close the modal when the close button is clicked
+        closeSuccessModal.addEventListener('click', function () {
+            successModal.classList.add('hidden');
+        });
+
+        // Close the modal when clicking outside of it
+        successModal.addEventListener('click', function (e) {
+            if (e.target === successModal) {
+                successModal.classList.add('hidden');
+            }
+        });
+    });
+</script>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const totalAmountInput = document.getElementById('hidden-total-amount');
+        const finalAmountInput = document.getElementById('hidden-final-amount');
+        const totalPriceElement = document.getElementById('checkout-total-price');
+        const discountAmountElement = document.getElementById('discount-amount');
+        const shippingFeeElement = document.getElementById('shipping-fee');
+
+        const extractPrice = (priceString) => parseFloat(priceString.replace(/[^\d.]/g, '')) || 0;
+
+        const updateHiddenInputs = () => {
+            const merchandiseTotal = extractPrice(totalPriceElement.textContent);
+            const discount = extractPrice(discountAmountElement.textContent);
+            const shippingFee = extractPrice(shippingFeeElement.textContent);
+            const finalAmount = merchandiseTotal - discount + shippingFee;
+
+            totalAmountInput.value = merchandiseTotal.toFixed(2);
+            finalAmountInput.value = finalAmount.toFixed(2);
+        };
+
+        // Update hidden inputs on page load and whenever prices change
+        updateHiddenInputs();
+        const observer = new MutationObserver(updateHiddenInputs);
+        observer.observe(totalPriceElement, { childList: true, characterData: true, subtree: true });
+    });
+</script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -261,3 +333,4 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 </script>
+
