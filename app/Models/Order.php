@@ -7,16 +7,20 @@ use Illuminate\Database\Eloquent\Model;
 class Order extends Model
 {
     //
-
+    protected $primaryKey = 'order_id';
+    
     protected $fillable = [
         'order_id',
         'user_id',
         'gift_card_id',
-        'order_date',
         'total_amount',
         'final_amount',
-        'shipping_cost',
         'payment_status',
         'delivery_status',
+        'received_date',
+        'confirmation_photo',
     ];
+
+    // Exclude order_date from being mass assignable
+    protected $guarded = ['order_date'];
 }

@@ -3,81 +3,308 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
+    <title>Order Management Admin Panel</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
+<body class="bg-gray-100">
+    <div class="min-h-screen">
+        <!-- Sidebar -->
+        <div class="fixed inset-y-0 left-0 w-64 bg-blue-800 text-white p-4">
+            <h1 class="text-2xl font-bold mb-8">Admin Panel</h1>
+            <nav>
+                <ul class="space-y-2">
+                    <li>
+                        <a href="#" class="flex items-center p-2 rounded hover:bg-blue-700 bg-blue-700">
+                            <i class="fas fa-shopping-cart mr-3"></i>
+                            Orders
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="flex items-center p-2 rounded hover:bg-blue-700">
+                            <i class="fas fa-users mr-3"></i>
+                            Customers
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="flex items-center p-2 rounded hover:bg-blue-700">
+                            <i class="fas fa-chart-bar mr-3"></i>
+                            Analytics
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="flex items-center p-2 rounded hover:bg-blue-700">
+                            <i class="fas fa-cog mr-3"></i>
+                            Settings
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
 
-<body class="bg-gray-100 min-h-screen">
-    <!-- Navigation Bar -->
-    <nav class="bg-gradient-to-r from-[#EBC980] to-[#EC59A0] shadow-md w-full font-poppins">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center">
-                    <img src="{{ asset('flowershop_db/store_logo/Logo2.png') }}" alt="Logo" class="h-10 w-10 mr-2">
-                    <a href="/" class="flex-shrink-0 flex items-center text-white font-bold text-xl">
-                        just_flowers
-                    </a>
+        <!-- Main Content -->
+        <div class="ml-64 p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">Order Management</h2>
+                <div class="flex space-x-4">
+                    <div class="relative">
+                        <input type="text" placeholder="Search orders..." class="pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                    </div>
+                    <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center">
+                        <i class="fas fa-plus mr-2"></i>
+                        Add Order
+                    </button>
                 </div>
-                <div class="hidden sm:ml-6 sm:flex sm:items-center space-x-4">
-                    <a href="{{ route('products.index') }}" class="text-white hover:text-gray-300 text-sm font-medium">Manage Products</a>
-                    <a href="/logout" class="text-white hover:text-gray-300 text-sm font-medium">Logout</a>
+            </div>
+
+            <!-- Filters -->
+            <div class="bg-white rounded-lg shadow p-4 mb-6">
+                <div class="flex items-center space-x-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                        <select class="border border-gray-300 rounded-md px-3 py-2 w-48">
+                            <option value="">All Statuses</option>
+                            <option value="processing">Processing</option>
+                            <option value="ordered pickup">Ordered Pickup</option>
+                            <option value="in transit">In Transit</option>
+                            <option value="out for delivery">Out for Delivery</option>
+                            <option value="order received">Order Received</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Date Range</label>
+                        <div class="flex space-x-2">
+                            <input type="date" class="border border-gray-300 rounded-md px-3 py-2">
+                            <span class="self-center">to</span>
+                            <input type="date" class="border border-gray-300 rounded-md px-3 py-2">
+                        </div>
+                    </div>
+                    <button class="self-end bg-gray-200 px-4 py-2 rounded-md hover:bg-gray-300">
+                        <i class="fas fa-filter mr-2"></i>
+                        Apply Filters
+                    </button>
+                </div>
+            </div>
+
+            <!-- Orders Table -->
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Order Number
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Customer Name
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Status
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Date Purchased
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Date Received
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Photo Confirmation
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Actions
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            @foreach ($orders as $order)
+                                <tr class="hover:bg-gray-50" data-order-id="{{ $order->order_id }}">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                        {{ $order->order_id }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {{ $order->user_id }} <!-- Replace with customer name if available -->
+                                    </td>
+                                    <td class="status-cell px-6 py-4 whitespace-nowrap">
+                                        <form method="POST" action="{{ route('admin.updateStatus', $order->order_id) }}">
+                                            @csrf
+                                            @method('PUT')
+                                            <select name="delivery_status" onchange="this.form.submit()" class="border rounded-md px-2 py-1 text-xs font-medium
+                                                {{ $order->delivery_status == 'processing' ? 'bg-yellow-100 text-yellow-800 border-yellow-200' : '' }}
+                                                {{ $order->delivery_status == 'ordered pickup' ? 'bg-blue-100 text-blue-800 border-blue-200' : '' }}
+                                                {{ $order->delivery_status == 'in transit' ? 'bg-purple-100 text-purple-800 border-purple-200' : '' }}
+                                                {{ $order->delivery_status == 'out for delivery' ? 'bg-orange-100 text-orange-800 border-orange-200' : '' }}
+                                                {{ $order->delivery_status == 'order received' ? 'bg-green-100 text-green-800 border-green-200' : '' }}"
+                                                {{ $order->delivery_status == 'Out for Delivery' && !$order->confirmation_photo ? 'disabled' : '' }}>
+                                                
+                                                @php
+                                                    $currentStatus = strtolower($order->delivery_status);
+                                                    $statusOrder = [
+                                                        'processing' => 1,
+                                                        'ordered pickup' => 2,
+                                                        'in transit' => 3,
+                                                        'out for delivery' => 4,
+                                                        'order received' => 5
+                                                    ];
+                                                    $currentLevel = $statusOrder[$currentStatus] ?? 0;
+                                                @endphp
+                                                
+                                                <option value="processing" 
+                                                    {{ $currentStatus == 'processing' ? 'selected' : '' }}
+                                                    {{ $currentLevel > 1 ? 'disabled' : '' }}>
+                                                    Processing
+                                                </option>
+                                                
+                                                <option value="ordered pickup" 
+                                                    {{ $currentStatus == 'ordered pickup' ? 'selected' : '' }}
+                                                    {{ $currentLevel > 2 ? 'disabled' : '' }}>
+                                                    Ordered Pickup
+                                                </option>
+                                                
+                                                <option value="in transit" 
+                                                    {{ $currentStatus == 'in transit' ? 'selected' : '' }}
+                                                    {{ $currentLevel > 3 ? 'disabled' : '' }}>
+                                                    In Transit
+                                                </option>
+                                                
+                                                <option value="out for delivery" 
+                                                    {{ $currentStatus == 'out for delivery' ? 'selected' : '' }}
+                                                    {{ $currentLevel > 4 ? 'disabled' : '' }}>
+                                                    Out for Delivery
+                                                </option>
+                                                
+                                                <option value="order received" 
+                                                    {{ $currentStatus == 'order received' ? 'selected' : '' }}>
+                                                    Order Received
+                                                </option>
+                                            </select>
+                                        </form>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {{ $order->order_date }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {{ $order->received_date ?? '-' }}
+                                    </td>
+                                    <td class="confimation-photo px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        @if ($order->confirmation_photo)
+                                            <a href="{{ asset( $order->confirmation_photo) }}" target="_blank" class="text-blue-600 hover:text-blue-800">
+                                                <i class="fas fa-eye"></i> View Photo
+                                            </a>
+                                        @else
+                                            <span class="text-gray-400">No Photo</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <button class="text-indigo-600 hover:text-indigo-900 mr-3">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="text-red-600 hover:text-red-900">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
-    </nav>
+    </div>
 
-    <!-- Main Content -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h1 class="text-2xl font-bold text-gray-800 mb-6">Admin Dashboard</h1>
-
-        <!-- Dashboard Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="bg-white shadow-md rounded-lg p-6">
-                <a href="{{ route('messages.index') }}" class="text-2xl font-bold text-[#F566BC] mt-2">Messaging System</a>
+    <!-- Status Color Legend -->
+    <div class="fixed bottom-4 right-4 bg-white p-4 rounded-lg shadow-lg border border-gray-200">
+        <h4 class="font-bold mb-2">Status Legend</h4>
+        <div class="space-y-2">
+            <div class="flex items-center">
+                <span class="w-3 h-3 rounded-full bg-yellow-100 border border-yellow-800 mr-2"></span>
+                <span class="text-sm">Processing</span>
             </div>
-            <div class="bg-white shadow-md rounded-lg p-6 cursor-pointer" onclick="showProducts()">
-                <a class="text-2xl font-bold text-[#F566BC] mt-2">Products</a>
+            <div class="flex items-center">
+                <span class="w-3 h-3 rounded-full bg-blue-100 border border-blue-800 mr-2"></span>
+                <span class="text-sm">Ordered Pickup</span>
             </div>
-        </div>
-
-        <!-- Product Management Table -->
-        <div id="product-management" class="bg-white shadow-md rounded-lg p-6 hidden">
-            <h2 class="text-lg font-bold text-gray-700 mb-4">Manage Products</h2>
-            <table class="min-w-full bg-white border border-gray-200">
-                <thead>
-                    <tr>
-                        <th class="px-4 py-2 border-b text-left text-sm font-medium text-gray-700">Product Name</th>
-                        <th class="px-4 py-2 border-b text-left text-sm font-medium text-gray-700">Price</th>
-                        <th class="px-4 py-2 border-b text-left text-sm font-medium text-gray-700">Stock</th>
-                        <th class="px-4 py-2 border-b text-left text-sm font-medium text-gray-700">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($products as $product)
-                        <tr>
-                            <td class="px-4 py-2 border-b text-sm text-gray-700">{{ $product->product_name }}</td>
-                            <td class="px-4 py-2 border-b text-sm text-gray-700">₱{{ number_format($product->price, 2) }}</td>
-                            <td class="px-4 py-2 border-b text-sm text-gray-700">{{ $product->stock_quantity }}</td>
-                            <td class="px-4 py-2 border-b text-sm text-gray-700">
-                                <a href="/admin/products/{{ $product->id }}/edit" class="text-blue-500 hover:underline">Edit</a>
-                                <form action="/admin/products/{{ $product->id }}" method="POST" class="inline-block">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="text-red-500 hover:underline">Delete</button>
-                                </form>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
+            <div class="flex items-center">
+                <span class="w-3 h-3 rounded-full bg-purple-100 border border-purple-800 mr-2"></span>
+                <span class="text-sm">In Transit</span>
+            </div>
+            <div class="flex items-center">
+                <span class="w-3 h-3 rounded-full bg-orange-100 border border-orange-800 mr-2"></span>
+                <span class="text-sm">Out for Delivery</span>
+            </div>
+            <div class="flex items-center">
+                <span class="w-3 h-3 rounded-full bg-green-100 border border-green-800 mr-2"></span>
+                <span class="text-sm">Order Received</span>
+            </div>
         </div>
     </div>
 
     <script>
-        function showProducts() {
-            const productManagement = document.getElementById('product-management');
-            productManagement.classList.toggle('hidden');
+        function updateOrders() {
+            fetch('{{ route('api.orders') }}')
+                .then(response => response.json())
+                .then(orders => {
+                    orders.forEach(order => {
+                        const orderRow = document.querySelector(`[data-order-id="${order.order_id}"]`);
+                        if (orderRow) {
+                            // Update the status select element instead of replacing the cell
+                            const statusSelect = orderRow.querySelector('select[name="delivery_status"]');
+                            if (statusSelect) {
+                                // Update selected value
+                                statusSelect.value = order.delivery_status.toLowerCase();
+                                
+                                // Update disabled states based on current status
+                                const currentStatus = order.delivery_status.toLowerCase();
+                                const statusOrder = {
+                                    'processing': 1,
+                                    'ordered pickup': 2,
+                                    'in transit': 3,
+                                    'out for delivery': 4,
+                                    'order received': 5
+                                };
+                                const currentLevel = statusOrder[currentStatus] || 0;
+                                
+                                statusSelect.querySelectorAll('option').forEach(option => {
+                                    const optionLevel = statusOrder[option.value] || 0;
+                                    option.disabled = optionLevel < currentLevel;
+                                });
+                                
+                                // Update the select styling based on status
+                                statusSelect.className = `border rounded-md px-2 py-1 text-xs font-medium ${
+                                    currentStatus === 'processing' ? 'bg-yellow-100 text-yellow-800 border-yellow-200' :
+                                    currentStatus === 'ordered pickup' ? 'bg-blue-100 text-blue-800 border-blue-200' :
+                                    currentStatus === 'in transit' ? 'bg-purple-100 text-purple-800 border-purple-200' :
+                                    currentStatus === 'out for delivery' ? 'bg-orange-100 text-orange-800 border-orange-200' :
+                                    currentStatus === 'order received' ? 'bg-green-100 text-green-800 border-green-200' : ''
+                                }`;
+                            }
+
+                            // Update dates (fix selectors to match your HTML)
+                            const dateCells = orderRow.querySelectorAll('.px-6.py-4.whitespace-nowrap.text-sm.text-gray-500');
+                            if (dateCells.length >= 2) {
+                                // Assuming order date is the 4th cell and received date is the 5th
+                                dateCells[0].textContent = order.order_date;
+                                dateCells[1].textContent = order.received_date || '-';
+                            }
+
+                            // Update confirmation photo link (fix selector typo)
+                            const photoCell = orderRow.querySelector('.confimation-photo');
+                            if (photoCell) {
+                                if (order.confirmation_photo) {
+                                    photoCell.innerHTML = `<a href="${order.confirmation_photo}" target="_blank" class="text-blue-600 hover:text-blue-800">
+                                        <i class="fas fa-eye"></i> View Photo
+                                    </a>`;
+                                } else {
+                                    photoCell.innerHTML = `<span class="text-gray-400">No Photo</span>`;
+                                }
+                            }
+                        }
+                    });
+                });
         }
+
+        // Poll every 5 seconds
+        setInterval(updateOrders, 5000);
     </script>
 </body>
 </html>

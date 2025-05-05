@@ -3,8 +3,7 @@
       <div class="p-4 space-y-4">
         <div class="text-center">
           <div class="relative w-14 h-14 mx-auto">
-            <img src="https://via.placeholder.com/60" class="rounded-full w-full h-full object-cover" alt="Profile">
-            <img src="https://via.placeholder.com/20" class="absolute bottom-0 right-0 rounded-full border border-white" alt="Overlay">
+            <img src="{{ asset('flowershop_db/store_logo/Logo2.png') }}" class="rounded-full w-full h-full object-cover" alt="Profile">
           </div>
             <p class="mt-2 font-semibold text-lg">Just Flower </p>
         </div>
@@ -18,29 +17,23 @@
             <button><i class="fas fa-magnifying-glass"></i></button>
             <span class="text-xs">Search</span>
           </div>
+          <!-- Add Admin Button -->
+          @if (isset($users))
+            <div class="flex flex-col items-center">
+              <a href="{{ route('admin.orders') }}" class="text-purple-600"><i class="fas fa-user-shield"></i></a>
+              <span class="text-xs">Admin</span>
+            </div>
+            <div class="flex flex-col items-center">
+              <a href="{{ route('admin.deliveryboard') }}" class="text-purple-600"><i class="fas fa-truck"></i></a>
+              <span class="text-xs">Delivery</span>
+            </div> 
+          @endif
         </div>
 
         <!-- Accordion -->
         <div class="space-y-2">
           <details class="text-base font-sans">
             <summary class="font-bold cursor-pointer flex justify-between items-center">Chat info <i class="fas fa-chevron-down"></i></summary>
-          </details>
-
-          <details class="text-base font-sans">
-            <summary class="font-bold cursor-pointer flex justify-between items-center">Customize chat <i class="fas fa-chevron-down"></i></summary>
-          </details>
-
-          <details class="text-base font-sans">
-            <summary class="font-bold cursor-pointer flex justify-between items-center">Chat members <i class="fas fa-chevron-down"></i></summary>
-          </details>
-
-          <details open class="text-base font-sans">
-            <summary class="font-bold cursor-pointer flex justify-between items-center">Media, files and links <i class="fas fa-chevron-down"></i></summary>
-            <ul class="pl-6 mt-2 space-y-1">
-              <li><i class="fas fa-image mr-2"></i>Media</li>
-              <li><i class="fas fa-file mr-2"></i>Files</li>
-              <li><i class="fas fa-link mr-2"></i>Links</li>
-            </ul>
           </details>
 
           <details class="text-base font-sans">

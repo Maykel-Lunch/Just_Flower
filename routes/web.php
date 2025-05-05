@@ -9,6 +9,7 @@ use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\GiftCardController;
+use App\Http\Controllers\OrderController;
 use App\Models\Store;
 use App\Models\Product;
 
@@ -110,7 +111,14 @@ Route::middleware('auth')->group(function () {
 Route::get('/checkout', [OrderController::class, 'checkout'])->name('checkout')->middleware('auth');
 
 
+Route::get('/admin/adminboard', [OrderController::class, 'index'])->name('admin.orders');
+Route::get('/admin/deliveryboard', [OrderController::class, 'deliveryBoard'])->name('admin.deliveryboard');
+Route::post('/admin/confirm-delivery', [OrderController::class, 'confirmDelivery'])->name('admin.confirmDelivery');
 
 
+
+Route::put('/admin/orders/{order:order_id}/status', [OrderController::class, 'updateStatus'])->name('admin.updateStatus');
+
+Route::get('/api/orders', [OrderController::class, 'getOrders'])->name('api.orders');
 
 
