@@ -91,4 +91,55 @@ public function index(Request $request)
         return redirect()->route('messages.index', ['user_id' => $request->receiver_id])
             ->with('success', 'Message sent successfully!');
     }
+
+    public function fetchMessages(Request $request)
+    {
+        $adminId = 1; // Assuming the admin's user ID is 1
+        $currentUserId = Auth::id(); // Get the currently authenticated user's ID
+        $selectedUserId = $request->query('user_id'); // Get the selected user ID from the query string
+    
+        // Fetch messages between the current user and the selected user
+        $messages = Message::with('sender') // Eager load the sender relationship
+            ->where(function ($query) use ($adminId, $selectedUserId, $currentUserId) {
+                $query->where('sender_id', $currentUserId)
+                      ->where('receiver_id', $selectedUserId);
+            })
+            ->orWhere(function ($query) use ($adminId, $selectedUserId, $currentUserId) {
+                $query->where('sender_id', $selectedUserId)
+                      ->where('receiver_id', $currentUserId);
+            })
+            ->orderBy('sent_at', 'asc')
+            ->get();
+    
+        return response()->json($messages);
+    }
+
+    public function latest()
+    {
+        $userId = auth()->id();
+
+        // Fetch the latest message for each conversation involving the authenticated user
+        $latestMessages = Message::with(['sender', 'receiver'])
+            ->whereIn('id', function ($query) use ($userId) {
+                $query->selectRaw('MAX(id)')
+                    ->from('messages')
+                    ->where(function ($q) use ($userId) {
+                        $q->where('sender_id', $userId)
+                        ->orWhere('receiver_id', $userId);
+                    })
+                    ->groupByRaw('LEAST(sender_id, receiver_id), GREATEST(sender_id, receiver_id)');
+            })
+            ->orderBy('sent_at', 'DESC')
+            ->get();
+
+        // Map the latest messages to users and sort them by the latest message time
+        $users = $latestMessages->map(function ($message) use ($userId) {
+            $user = $message->sender_id === $userId ? $message->receiver : $message->sender;
+            $user->recent_message = $message->message_content;
+            $user->latest_message_time = $message->sent_at;
+            return $user;
+        })->sortByDesc('latest_message_time')->unique('id'); // Ensure unique users
+
+        return response()->json($users);
+    }
 }
