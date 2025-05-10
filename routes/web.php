@@ -125,3 +125,12 @@ Route::get('/api/orders', [OrderController::class, 'getOrders'])->name('api.orde
 Route::post('/orders/store', [OrderController::class, 'store'])->name('orders.store');
 
 
+Route::get('/messages/fetch', [MessageController::class, 'fetchMessages'])->name('messages.fetch');
+
+Route::get('/messages/latest', [MessageController::class, 'latest'])->name('messages.latest');
+
+
+
+use App\Http\Controllers\FileController;
+
+Route::post('/admin/upload-confirmation-photo', [FileController::class, 'uploadConfirmationPhoto'])->name('admin.uploadConfirmationPhoto');
