@@ -1,3 +1,8 @@
+@if(Auth::id() !== 1) 
+    <script>
+        window.location.href = "{{ route('dashboard') }}";
+    </script>
+@else
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -196,3 +201,4 @@
         });
     });
 </script>
+@endif

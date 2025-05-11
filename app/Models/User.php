@@ -80,9 +80,14 @@ class User extends Authenticatable
         return $this->hasMany(Order::class);
     }
 
-public function giftCard()
-{
-    return $this->hasOne(GiftCard::class, 'user_id', 'id');
-}
+    public function giftCard()
+    {
+        return $this->hasOne(GiftCard::class, 'user_id', 'id');
+    }
+
+    public function isAdmin()
+    {
+        return $this->id == 1;
+    }
 
 }

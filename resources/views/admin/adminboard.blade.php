@@ -1,4 +1,11 @@
-<!DOCTYPE html>
+
+
+@if(Auth::id() !== 1) 
+    <script>
+        window.location.href = "{{ route('dashboard') }}";
+    </script>
+@else
+<<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -331,3 +338,4 @@
     </script>
 </body>
 </html>
+@endif

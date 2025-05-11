@@ -7,9 +7,22 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Message;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Controller;
+use App\Models\User;
 
 class OrderController extends Controller
 {
+    public function __construct()
+    {
+        // Check admin access for all methods in this controller
+
+           // Check if user is ID 1 (admin)
+        if (!Auth::check() || Auth::id() !== 1) {
+            return redirect()->route('dashboard')
+                ->with('error', 'Access denied. Admin privileges required.');
+        }
+    }
+
     public function index()
     {
         $orders = Order::all(); // Fetch all orders
@@ -67,9 +80,17 @@ class OrderController extends Controller
 
     public function deliveryBoard()
     {
-        // Fetch orders without a confirmation photo
-        $orders = Order::whereNull('confirmation_photo')->get();
-        return view('admin.deliveryboard', compact('orders'));
+        if (!Auth::check() || Auth::id() !== 1) {
+            return redirect()->route('dashboard')
+                ->with('error', 'Access denied. Admin privileges required.');
+        }
+        else
+        {
+           // Fetch orders without a confirmation photo
+            $orders = Order::whereNull('confirmation_photo')->get();
+            return view('admin.deliveryboard', compact('orders')); 
+        }
+        
     }
 
     
