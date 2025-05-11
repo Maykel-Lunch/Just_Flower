@@ -77,12 +77,6 @@ Route::middleware('auth')->group(function () {
     
 });
 
-// Route::middleware('auth')->post('/wishlist/toggle', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
-// Route::post('/wishlist/{productId}', [WishlistController::class, 'toggleWishlist'])->name('wishlist.toggle');
-
-// Route::post('/wishlist/{productId}', [WishlistController::class, 'toggleWishlist'])
-//     ->middleware('auth')
-//     ->name('wishlist.toggle');
 
 Route::post('/wishlist/{productId}', [WishlistController::class, 'toggle'])->middleware('auth');
 
@@ -97,14 +91,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/products', [ProductController::class, 'index'])->name('products.index');
 });
 
-
-// Route::middleware(['auth'])->group(function () {
-//     Route::get('/product', [OrderController::class, 'showOrders'])->name('orders.view');
-// });
-
-// Route::middleware(['auth'])->group(function () {
-//     Route::get('/check-free-shipping', [OrderController::class, 'checkFreeShipping'])->name('check.freeShipping');
-// });
 
 
 

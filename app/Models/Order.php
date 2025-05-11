@@ -22,5 +22,16 @@ class Order extends Model
     ];
 
     // Exclude order_date from being mass assignable
-    protected $guarded = ['order_date'];
+    // protected $guarded = ['order_date'];
+
+    // In your Order model
+    protected $casts = [
+        'order_date',
+        'received_date'
+    ];
+    // Add relationship to User model
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }

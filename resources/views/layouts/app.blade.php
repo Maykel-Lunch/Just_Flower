@@ -10,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Great+Vibes&family=Quicksand:wght@700&family=Poppins:wght@700&family=Montserrat:wght@700&family=Lora:wght@700&family=Dancing+Script:wght@700&family=Pacifico&family=Amatic+SC:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/wishlist.css') }}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/carbon-js@1.0.0/carbon.min.js"></script>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Swiper CSS -->

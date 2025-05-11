@@ -29,6 +29,30 @@ class OrderController extends Controller
         if ($order->delivery_status == 'order received' && !$order->confirmation_photo) {
             return back()->withErrors(['error' => 'Confirmation photo is required to mark as Order Received.']);
         }
+
+        // Set received_date when status becomes delivered
+        if ($order->delivery_status == 'order received') {
+            $order->received_date = now();
+        }
+
+        // Create status update message
+        $statusMessages = [
+            'processing' => 'Your order is now being processed.',
+            'ordered pickup' => 'Your order is ready for pickup.',
+            'in transit' => 'Your order is now in transit.',
+            'out for delivery' => 'Your order is out for delivery.',
+            'order received' => 'Your order has been received.',
+        ];
+
+        $messageContent = $statusMessages[$order->delivery_status] ?? 'Your order status has been updated.';
+        
+        // Create message for the user
+        Message::create([
+            'sender_id' => 1, // Admin ID
+            'receiver_id' => $order->user_id,
+            'message_content' => $messageContent,
+            'sent_at' => now(),
+        ]);
     
         $order->save();
     
@@ -48,72 +72,31 @@ class OrderController extends Controller
         return view('admin.deliveryboard', compact('orders'));
     }
 
+    
     public function confirmDelivery(Request $request)
     {
         // Validate request
         $validated = $request->validate([
-            'orderId' => 'required|exists:orders,order_id',
-            'deliveryProof' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+            'order_id' => 'required|exists:orders,order_id',
+            'confirmation_photo' => 'required|image|mimes:jpeg,png,jpg|max:2048', // Updated field name
         ]);
     
         try {
-            // Get the order with authorization check
-            $order = Order::where('order_id', $validated['orderId'])->firstOrFail();
-            
-            // Verify the user has permission to confirm this delivery
-            if (!auth()->user()->can('confirm-delivery', $order)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Unauthorized action'
-                ], 403);
-            }
+            // Get the order
+            $order = Order::where('order_id', $validated['order_id'])->firstOrFail();
     
             // Handle file upload
-            $file = $request->file('deliveryProof');
+            $file = $request->file('confirmation_photo'); // Updated field name
             $fileName = 'delivery_' . $order->order_id . '_' . time() . '.' . $file->extension();
-            $filePath = $file->getPathname();
+            $filePath = 'flowershop_db/confirmation/' . $fileName;
     
-            // Supabase upload configuration
-            $supabaseUrl = config('services.supabase.url');
-            $supabaseKey = config('services.supabase.key');
-            $bucketName = config('services.supabase.bucket', 'photo-confirmation');
+            // Save the file directly to the public directory
+            $file->move(public_path('flowershop_db/confirmation'), $fileName);
     
-            // Initialize cURL
-            $ch = curl_init();
-            curl_setopt_array($ch, [
-                CURLOPT_URL => "$supabaseUrl/storage/v1/object/$bucketName/$fileName",
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_CUSTOMREQUEST => "POST",
-                CURLOPT_POSTFIELDS => file_get_contents($filePath),
-                CURLOPT_HTTPHEADER => [
-                    "Authorization: Bearer $supabaseKey",
-                    "Content-Type: " . $file->getMimeType(),
-                    "Cache-Control: no-cache",
-                ],
-                CURLOPT_TIMEOUT => 30,
-            ]);
-    
-            $response = curl_exec($ch);
-            $error = curl_error($ch);
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            curl_close($ch);
-    
-            // Handle upload failure
-            if ($error || !in_array($httpCode, [200, 201])) {
-                \Log::error('Supabase upload failed', [
-                    'error' => $error,
-                    'response' => $response,
-                    'code' => $httpCode
-                ]);
-                
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Failed to upload delivery proof'
-                ], 500);
-            }
+            // Generate the public URL
+            $publicUrl = asset($filePath);
     
             // Update order status
-            $publicUrl = "$supabaseUrl/storage/v1/object/public/$bucketName/$fileName";
             $order->update([
                 'confirmation_photo' => $publicUrl,
                 'delivery_status' => 'delivered',
@@ -129,9 +112,9 @@ class OrderController extends Controller
         } catch (\Exception $e) {
             \Log::error('Delivery confirmation failed', [
                 'error' => $e->getMessage(),
-                'order' => $request->orderId ?? null
+                'order' => $request->order_id ?? null
             ]);
-            
+    
             return response()->json([
                 'success' => false,
                 'message' => 'An error occurred while processing your request'

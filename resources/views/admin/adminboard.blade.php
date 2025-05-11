@@ -9,39 +9,54 @@
 </head>
 <body class="bg-gray-100">
     <div class="min-h-screen">
+        
         <!-- Sidebar -->
-        <div class="fixed inset-y-0 left-0 w-64 bg-blue-800 text-white p-4">
-            <h1 class="text-2xl font-bold mb-8">Admin Panel</h1>
+        <div class="fixed inset-y-0 left-0 w-64 bg-gradient-to-b from-purple-50 to-white text-gray-800 p-4 border-r border-gray-200">
+            <h1 class="text-2xl font-bold mb-8 text-green-700">just_flowers</h1>
             <nav>
                 <ul class="space-y-2">
                     <li>
-                        <a href="#" class="flex items-center p-2 rounded hover:bg-blue-700 bg-blue-700">
-                            <i class="fas fa-shopping-cart mr-3"></i>
+                        <a href="#" class="flex items-center p-2 rounded hover:bg-green-50 bg-green-50 text-green-700 border-l-4 border-green-500">
+                            <i class="fas fa-shopping-cart mr-3 text-green-600"></i>
                             Orders
                         </a>
                     </li>
                     <li>
-                        <a href="#" class="flex items-center p-2 rounded hover:bg-blue-700">
-                            <i class="fas fa-users mr-3"></i>
+                        <a href="#" class="flex items-center p-2 rounded hover:bg-green-50 text-gray-700 hover:text-green-700">
+                            <i class="fas fa-users mr-3 text-gray-500"></i>
                             Customers
                         </a>
                     </li>
                     <li>
-                        <a href="#" class="flex items-center p-2 rounded hover:bg-blue-700">
-                            <i class="fas fa-chart-bar mr-3"></i>
+                        <a href="#" class="flex items-center p-2 rounded hover:bg-green-50 text-gray-700 hover:text-green-700">
+                            <i class="fas fa-chart-bar mr-3 text-gray-500"></i>
                             Analytics
                         </a>
                     </li>
                     <li>
-                        <a href="#" class="flex items-center p-2 rounded hover:bg-blue-700">
-                            <i class="fas fa-cog mr-3"></i>
+                        <a href="/admin/delivery" class="flex items-center p-2 rounded hover:bg-green-50 text-gray-700 hover:text-green-700">
+                            <i class="fas fa-truck mr-3 text-gray-500"></i>
+                            Delivery
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="flex items-center p-2 rounded hover:bg-green-50 text-gray-700 hover:text-green-700">
+                            <i class="fas fa-cog mr-3 text-gray-500"></i>
                             Settings
                         </a>
                     </li>
                 </ul>
             </nav>
-        </div>
+            
+            <!-- Additional floral-themed elements -->
+            <div class="mt-8 pt-4 border-t border-gray-100">
+                <a href="/dashboard" class="flex items-center p-2 rounded hover:bg-green-50 text-gray-700 hover:text-green-700 cursor-pointer">
+                    <i class="fas fa-store mr-3 text-gray-500"></i>
+                    <span>Website</span>
+                </a>
 
+            </div>
+        </div>
         <!-- Main Content -->
         <div class="ml-64 p-8">
             <div class="flex justify-between items-center mb-6">
@@ -122,8 +137,8 @@
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                         {{ $order->order_id }}
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {{ $order->user_id }} <!-- Replace with customer name if available -->
+                                    <td class="customer-name-cellpx-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {{ $order->user->name }} <!-- Replace with customer name if available -->
                                     </td>
                                     <td class="status-cell px-6 py-4 whitespace-nowrap">
                                         <form method="POST" action="{{ route('admin.updateStatus', $order->order_id) }}">
@@ -180,11 +195,11 @@
                                             </select>
                                         </form>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {{ $order->order_date }}
+                                    <td class="order-date-cell px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {{ $order->order_date ? \Carbon\Carbon::parse($order->order_date)->format('M d, Y h:i A') : '-' }}
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {{ $order->received_date ?? '-' }}
+                                    <td class="received-date-cell px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {{ $order->received_date ? \Carbon\Carbon::parse($order->received_date)->format('M d, Y h:i A') : '-' }}
                                     </td>
                                     <td class="confimation-photo px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         @if ($order->confirmation_photo)
@@ -240,6 +255,8 @@
     </div>
 
     <script>
+        import Carbon from 'carbon.js'
+        
         function updateOrders() {
             fetch('{{ route('api.orders') }}')
                 .then(response => response.json())
@@ -247,13 +264,11 @@
                     orders.forEach(order => {
                         const orderRow = document.querySelector(`[data-order-id="${order.order_id}"]`);
                         if (orderRow) {
-                            // Update the status select element instead of replacing the cell
+                            // Update status select
                             const statusSelect = orderRow.querySelector('select[name="delivery_status"]');
                             if (statusSelect) {
-                                // Update selected value
                                 statusSelect.value = order.delivery_status.toLowerCase();
                                 
-                                // Update disabled states based on current status
                                 const currentStatus = order.delivery_status.toLowerCase();
                                 const statusOrder = {
                                     'processing': 1,
@@ -269,7 +284,6 @@
                                     option.disabled = optionLevel < currentLevel;
                                 });
                                 
-                                // Update the select styling based on status
                                 statusSelect.className = `border rounded-md px-2 py-1 text-xs font-medium ${
                                     currentStatus === 'processing' ? 'bg-yellow-100 text-yellow-800 border-yellow-200' :
                                     currentStatus === 'ordered pickup' ? 'bg-blue-100 text-blue-800 border-blue-200' :
@@ -279,16 +293,25 @@
                                 }`;
                             }
 
-                            // Update dates (fix selectors to match your HTML)
-                            const dateCells = orderRow.querySelectorAll('.px-6.py-4.whitespace-nowrap.text-sm.text-gray-500');
-                            if (dateCells.length >= 2) {
-                                // Assuming order date is the 4th cell and received date is the 5th
-                                dateCells[0].textContent = order.order_date;
-                                dateCells[1].textContent = order.received_date || '-';
+                            // Update customer name - use more specific selector
+                            const customerNameCell = orderRow.querySelector('.customer-name-cell');
+                            if (customerNameCell) {
+                                customerNameCell.textContent = order.user?.name || '-';
                             }
 
-                            // Update confirmation photo link (fix selector typo)
-                            const photoCell = orderRow.querySelector('.confimation-photo');
+                            // Update dates - use more specific selectors
+                            const orderDateCell = orderRow.querySelector('.order-date-cell');
+                            if (orderDateCell) {
+                                orderDateCell.textContent = order.order_date ? formatDate(order.order_date) : '-';
+                            }
+
+                            const receivedDateCell = orderRow.querySelector('.received-date-cell');
+                            if (receivedDateCell) {
+                                receivedDateCell.textContent = order.received_date ? formatDate(order.received_date) : '-';
+                            }
+
+                            // Update confirmation photo - fix typo in class name
+                            const photoCell = orderRow.querySelector('.confirmation-photo');
                             if (photoCell) {
                                 if (order.confirmation_photo) {
                                     photoCell.innerHTML = `<a href="${order.confirmation_photo}" target="_blank" class="text-blue-600 hover:text-blue-800">
