@@ -1,5 +1,3 @@
-
-
 @if(Auth::id() !== 1) 
     <script>
         window.location.href = "{{ route('dashboard') }}";
@@ -23,7 +21,7 @@
             <nav>
                 <ul class="space-y-2">
                     <li>
-                        <a href="#" class="flex items-center p-2 rounded hover:bg-green-50 bg-green-50 text-green-700 border-l-4 border-green-500">
+                        <a href="{{ route('admin.orders') }}" class="flex items-center p-2 rounded hover:bg-green-50 bg-green-50 text-green-700 border-l-4 border-green-500">
                             <i class="fas fa-shopping-cart mr-3 text-green-600"></i>
                             Orders
                         </a>
@@ -41,7 +39,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="/admin/delivery" class="flex items-center p-2 rounded hover:bg-green-50 text-gray-700 hover:text-green-700">
+                        <a href="/admin/deliveryboard" class="flex items-center p-2 rounded hover:bg-green-50 text-gray-700 hover:text-green-700">
                             <i class="fas fa-truck mr-3 text-gray-500"></i>
                             Delivery
                         </a>
@@ -156,7 +154,9 @@
                                                 {{ $order->delivery_status == 'ordered pickup' ? 'bg-blue-100 text-blue-800 border-blue-200' : '' }}
                                                 {{ $order->delivery_status == 'in transit' ? 'bg-purple-100 text-purple-800 border-purple-200' : '' }}
                                                 {{ $order->delivery_status == 'out for delivery' ? 'bg-orange-100 text-orange-800 border-orange-200' : '' }}
-                                                {{ $order->delivery_status == 'order received' ? 'bg-green-100 text-green-800 border-green-200' : '' }}"
+                                                {{ $order->delivery_status == 'order received' ? 'bg-green-100 text-green-800 border-green-200' : '' }}
+                                                {{ $order->delivery_status == 'cancelled' ? 'bg-red-100 text-red-800 border-red-200' : '' }}"
+                                                {{ $order->delivery_status == 'cancelled' ? 'disabled' : '' }}
                                                 {{ $order->delivery_status == 'Out for Delivery' && !$order->confirmation_photo ? 'disabled' : '' }}>
                                                 
                                                 @php
@@ -170,35 +170,39 @@
                                                     ];
                                                     $currentLevel = $statusOrder[$currentStatus] ?? 0;
                                                 @endphp
-                                                
-                                                <option value="processing" 
-                                                    {{ $currentStatus == 'processing' ? 'selected' : '' }}
-                                                    {{ $currentLevel > 1 ? 'disabled' : '' }}>
-                                                    Processing
-                                                </option>
-                                                
-                                                <option value="ordered pickup" 
-                                                    {{ $currentStatus == 'ordered pickup' ? 'selected' : '' }}
-                                                    {{ $currentLevel > 2 ? 'disabled' : '' }}>
-                                                    Ordered Pickup
-                                                </option>
-                                                
-                                                <option value="in transit" 
-                                                    {{ $currentStatus == 'in transit' ? 'selected' : '' }}
-                                                    {{ $currentLevel > 3 ? 'disabled' : '' }}>
-                                                    In Transit
-                                                </option>
-                                                
-                                                <option value="out for delivery" 
-                                                    {{ $currentStatus == 'out for delivery' ? 'selected' : '' }}
-                                                    {{ $currentLevel > 4 ? 'disabled' : '' }}>
-                                                    Out for Delivery
-                                                </option>
-                                                
-                                                <option value="order received" 
-                                                    {{ $currentStatus == 'order received' ? 'selected' : '' }}>
-                                                    Order Received
-                                                </option>
+
+                                                @if($order->delivery_status == 'cancelled')
+                                                    <option value="cancelled" selected disabled>Cancelled</option>
+                                                @else
+                                                    <option value="processing" 
+                                                        {{ $currentStatus == 'processing' ? 'selected' : '' }}
+                                                        {{ $currentLevel > 1 ? 'disabled' : '' }}>
+                                                        Processing
+                                                    </option>
+                                                    
+                                                    <option value="ordered pickup" 
+                                                        {{ $currentStatus == 'ordered pickup' ? 'selected' : '' }}
+                                                        {{ $currentLevel > 2 ? 'disabled' : '' }}>
+                                                        Ordered Pickup
+                                                    </option>
+                                                    
+                                                    <option value="in transit" 
+                                                        {{ $currentStatus == 'in transit' ? 'selected' : '' }}
+                                                        {{ $currentLevel > 3 ? 'disabled' : '' }}>
+                                                        In Transit
+                                                    </option>
+                                                    
+                                                    <option value="out for delivery" 
+                                                        {{ $currentStatus == 'out for delivery' ? 'selected' : '' }}
+                                                        {{ $currentLevel > 4 ? 'disabled' : '' }}>
+                                                        Out for Delivery
+                                                    </option>
+                                                    
+                                                    <option value="order received" 
+                                                        {{ $currentStatus == 'order received' ? 'selected' : '' }}>
+                                                        Order Received
+                                                    </option>
+                                                @endif
                                             </select>
                                         </form>
                                     </td>
@@ -234,6 +238,7 @@
         </div>
     </div>
 
+    
     <!-- Status Color Legend -->
     <div class="fixed bottom-4 right-4 bg-white p-4 rounded-lg shadow-lg border border-gray-200">
         <h4 class="font-bold mb-2">Status Legend</h4>
@@ -257,6 +262,10 @@
             <div class="flex items-center">
                 <span class="w-3 h-3 rounded-full bg-green-100 border border-green-800 mr-2"></span>
                 <span class="text-sm">Order Received</span>
+            </div>
+            <div class="flex items-center">
+                <span class="w-3 h-3 rounded-full bg-red-100 border border-red-800 mr-2"></span>
+                <span class="text-sm">Cancelled</span>
             </div>
         </div>
     </div>
@@ -296,7 +305,8 @@
                                     currentStatus === 'ordered pickup' ? 'bg-blue-100 text-blue-800 border-blue-200' :
                                     currentStatus === 'in transit' ? 'bg-purple-100 text-purple-800 border-purple-200' :
                                     currentStatus === 'out for delivery' ? 'bg-orange-100 text-orange-800 border-orange-200' :
-                                    currentStatus === 'order received' ? 'bg-green-100 text-green-800 border-green-200' : ''
+                                    currentStatus === 'order received' ? 'bg-green-100 text-green-800 border-green-200' :
+                                    currentStatus === 'cancelled' ? 'bg-red-100 text-red-800 border-red-200' : ''
                                 }`;
                             }
 
