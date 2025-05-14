@@ -14,18 +14,29 @@ use App\Models\Product;
 
 class OrderController extends Controller
 {
-    public function __construct()
+    public function index()
     {
-        // Check if user is ID 1 (admin)
+        // Get orders for the current user
+        $orders = Order::with(['orderItems.product'])
+            ->where('user_id', Auth::id())
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        return view('orders.index', compact('orders'));
+    }
+
+    public function adminOrders()
+    {
+        // Check if user is admin
         if (!Auth::check() || Auth::id() !== 1) {
             return redirect()->route('dashboard')
                 ->with('error', 'Access denied. Admin privileges required.');
         }
-    }
 
-    public function index()
-    {
-        $orders = Order::all(); // Fetch all orders
+        $orders = Order::with(['orderItems.product', 'user'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
         return view('admin.adminboard', compact('orders'));
     }
 
@@ -228,5 +239,15 @@ class OrderController extends Controller
             ]);
             return redirect()->back()->with('error', 'An error occurred while processing your order: ' . $e->getMessage());
         }
+    }
+
+    public function orderHistory()
+    {
+        $orders = Order::with(['orderItems.product'])
+            ->where('user_id', Auth::id())
+            ->orderBy('created_at', 'desc')
+            ->paginate(10); // Add pagination with 10 items per page
+
+        return view('orders.index', compact('orders'));
     }
 }

@@ -10,6 +10,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\GiftCardController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\FileController;
 use App\Models\Store;
 use App\Models\Product;
 
@@ -55,7 +56,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit'); // Edit profile form
     Route::post('/profile/update', [ProfileController::class, 'update'])->name('profile.update'); // Update profile
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
-// Route::get('/rewards', [RewardController::class, 'index'])->name('rewards.index');
+    Route::get('/my-orders', [OrderController::class, 'orderHistory'])->name('orders.history');
+    
+});
 
 Route::middleware(['auth'])->group(function () {
     // Gift Card Routes
@@ -67,7 +70,7 @@ Route::middleware(['auth'])->group(function () {
 // Route::get('/gift-cards', [GiftCardController::class, 'index'])->name('gift-cards.index');
 Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-});
+
 
 Route::middleware('auth')->group(function () {
     Route::get('/wishlist', [WishlistController::class, 'viewWishlistPage'])->name('wishlist.page');
@@ -117,6 +120,7 @@ Route::get('/messages/latest', [MessageController::class, 'latest'])->name('mess
 
 
 
-use App\Http\Controllers\FileController;
+
 
 Route::post('/admin/upload-confirmation-photo', [FileController::class, 'uploadConfirmationPhoto'])->name('admin.uploadConfirmationPhoto');
+

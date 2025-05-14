@@ -128,7 +128,7 @@
                                 </li>
                                 <!-- Order History -->
                                 <li>
-                                    <a href="/orders" class="flex items-center px-4 py-2 hover:bg-gray-100">
+                                    <a href="{{ route('orders.index') }}" class="flex items-center px-4 py-2 hover:bg-gray-100">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                             <path d="M3 3h18v18H3V3z" />
                                             <path d="M8 12h8M8 16h8M8 8h8" />
@@ -156,14 +156,14 @@
                                     </a>
                                 </li>
                                 <!-- Notifications -->
-                                <li>
+                                <!-- <li>
                                     <a href="/notifications" class="flex items-center px-4 py-2 hover:bg-gray-100">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                             <path d="M12 22c1.5 0 3-1.5 3-3H9c0 1.5 1.5 3 3 3zm6-6v-5c0-3.9-3-6-6-6s-6 2.1-6 6v5l-2 2v1h16v-1l-2-2z" />
                                         </svg>
                                         Notifications
                                     </a>
-                                </li>
+                                </li> -->
                                 
                         
                                 <!-- Divider -->
