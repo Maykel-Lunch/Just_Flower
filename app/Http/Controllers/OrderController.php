@@ -16,7 +16,7 @@ class OrderController extends Controller
 {
     public function index()
     {
-        // Get orders for the current user
+        // Customer orders view
         $orders = Order::with(['orderItems.product'])
             ->where('user_id', Auth::id())
             ->orderBy('created_at', 'desc')
@@ -249,5 +249,45 @@ class OrderController extends Controller
             ->paginate(10); // Add pagination with 10 items per page
 
         return view('orders.index', compact('orders'));
+    }
+
+    public function cancelOrder(Request $request, $orderId)
+    {
+        try {
+            $order = Order::where('order_id', $orderId)
+                ->where('user_id', Auth::id())
+                ->firstOrFail();
+
+            // Only allow cancellation if order is still processing
+            if ($order->delivery_status !== 'processing') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Only processing orders can be cancelled.'
+                ], 400);
+            }
+
+            // Update order status
+            $order->delivery_status = 'cancelled';
+            $order->save();
+
+            // Create cancellation message
+            Message::create([
+                'sender_id' => 1, // Admin ID
+                'receiver_id' => $order->user_id,
+                'message_content' => 'Your order #ORD-' . str_pad($order->order_id, 3, '0', STR_PAD_LEFT) . ' has been cancelled.',
+                'sent_at' => now(),
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Order cancelled successfully.'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to cancel order.'
+            ], 500);
+        }
     }
 }

@@ -31,8 +31,14 @@
                     <div class="bg-white p-6 rounded-lg shadow-sm">
                         <div class="flex justify-between items-start mb-4">
                             <h3 class="text-lg font-semibold text-gray-800">Order #ORD-{{ str_pad($order->order_id, 3, '0', STR_PAD_LEFT) }}</h3>
-                            <span class="text-sm font-medium {{ $order->delivery_status === 'order received' ? 'text-green-600 bg-green-50' : ($order->delivery_status === 'processing' ? 'text-yellow-600 bg-yellow-50' : 'text-blue-600 bg-blue-50') }} px-3 py-1 rounded-full">
-                                {{ ucfirst($order->delivery_status) }}
+                            <span class="text-sm font-medium px-3 py-1 rounded-full 
+                                {{ $order->delivery_status === 'order received' ? 'text-green-600 bg-green-50' : 
+                                ($order->delivery_status === 'processing' ? 'text-yellow-600 bg-yellow-50' : 
+                                ($order->delivery_status === 'ordered pickup' ? 'text-blue-600 bg-blue-50' : 
+                                ($order->delivery_status === 'in transit' ? 'text-violet-600 bg-violet-50' : 
+                                ($order->delivery_status === 'out for delivery' ? 'text-orange-600 bg-orange-50' : 
+                                ($order->delivery_status === 'cancelled' ? 'text-red-600 bg-red-50' : 'text-gray-600 bg-gray-50'))))) }}">
+                                {{ ucwords(str_replace('_', ' ', $order->delivery_status)) }}
                             </span>
                         </div>
                         <p class="text-gray-600 mb-4">
@@ -55,7 +61,11 @@
                                 <button class="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 text-sm">Reorder</button>
                             @elseif($order->delivery_status === 'processing')
                                 <button class="text-blue-600 hover:text-blue-800 font-medium">View Details</button>
-                                <button class="px-4 py-2 bg-red-100 text-red-700 rounded-md hover:bg-red-200 text-sm">Cancel Order</button>
+                                <button 
+                                    onclick="cancelOrder({{ $order->order_id }})"
+                                    class="px-4 py-2 bg-red-100 text-red-700 rounded-md hover:bg-red-200 text-sm">
+                                    Cancel Order
+                                </button>
                             @else
                                 <button class="text-blue-600 hover:text-blue-800 font-medium">Track Order</button>
                                 <button class="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 text-sm">Reorder</button>
@@ -97,4 +107,40 @@
         @endif
     </div>
 </div>
+
+<script>
+function cancelOrder(orderId) {
+    if (!confirm('Are you sure you want to cancel this order?')) {
+        return;
+    }
+
+    fetch(`/orders/${orderId}/cancel`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Show success message
+            alert(data.message);
+            // Reload the page to show updated status
+            window.location.reload();
+        } else {
+            // Show error message
+            alert(data.message || 'Failed to cancel order');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while cancelling the order');
+    });
+}
+</script>
 @endsection
+
+<!-- @section('scripts')
+
+@endsection -->

@@ -84,14 +84,15 @@ Route::middleware('auth')->group(function () {
 Route::post('/wishlist/{productId}', [WishlistController::class, 'toggle'])->middleware('auth');
 
 Route::middleware('auth')->group(function () {
-    // Admin Dashboard Route
-    Route::get('/admin/dashboard', function () {
-        $products = \App\Models\Product::all(); // Fetch all products
-        return view('admin.adminboard', compact('products'));
-    })->name('admin.dashboard');
+    // Admin routes
+    Route::get('/admin/adminboard', [OrderController::class, 'adminOrders'])->name('admin.orders');
+    Route::get('/admin/deliveryboard', [OrderController::class, 'deliveryBoard'])->name('admin.deliveryboard');
+    Route::post('/admin/confirm-delivery', [OrderController::class, 'confirmDelivery'])->name('admin.confirmDelivery');
+    Route::put('/admin/orders/{order:order_id}/status', [OrderController::class, 'updateStatus'])->name('admin.updateStatus');
 
-    // Manage Products Route
-    Route::get('/admin/products', [ProductController::class, 'index'])->name('products.index');
+    // Customer routes
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::post('/orders/{orderId}/cancel', [OrderController::class, 'cancelOrder'])->name('orders.cancel');
 });
 
 
@@ -99,14 +100,6 @@ Route::middleware('auth')->group(function () {
 
 Route::get('/checkout', [OrderController::class, 'checkout'])->name('checkout')->middleware('auth');
 
-
-Route::get('/admin/adminboard', [OrderController::class, 'index'])->name('admin.orders');
-Route::get('/admin/deliveryboard', [OrderController::class, 'deliveryBoard'])->name('admin.deliveryboard');
-Route::post('/admin/confirm-delivery', [OrderController::class, 'confirmDelivery'])->name('admin.confirmDelivery');
-
-
-
-Route::put('/admin/orders/{order:order_id}/status', [OrderController::class, 'updateStatus'])->name('admin.updateStatus');
 
 Route::get('/api/orders', [OrderController::class, 'getOrders'])->name('api.orders');
 
