@@ -152,6 +152,7 @@
                         <input type="hidden" name="total_amount" id="order-total" value="{{ $product->price }}">
                         <input type="hidden" name="final_amount" id="order-final" value="{{ $product->price }}">
                         <input type="hidden" name="product_name" value="{{ $product->product_name }}">
+                        <input type="hidden" name="unit_price" id="order-unit-price" value="{{ $product->price }}">
                         
                         <button type="submit" class="w-full bg-gradient-to-r from-pink-500 to-yellow-400 text-white py-4 rounded-lg font-bold text-lg hover:from-pink-600 hover:to-yellow-500 transition duration-300 flex items-center justify-center" {{ $product->stock_quantity <= 0 ? 'disabled' : '' }}>
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -166,15 +167,66 @@
     </div>
 </div>
 
-<!-- Success Modal -->
-<div id="successModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
-    <div class="h-full w-full flex items-center justify-center">
-        <div class="bg-white rounded-lg shadow-lg p-6 w-96 text-center">
-            <h2 class="text-2xl font-bold text-green-600 mb-4">Order Placed Successfully!</h2>
-            <p class="text-gray-700 mb-6">Thank you for your purchase. Your order has been placed successfully.</p>
-            <button id="closeSuccessModal" class="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-lg">
-                Close
-            </button>
+<!-- Success Modal with Receipt Design -->
+<div id="successModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden overflow-y-auto">
+    <div class="min-h-full py-8 flex items-center justify-center">
+        <div class="bg-white rounded-lg shadow-lg p-6 w-96 mx-auto my-8 text-center">
+            <!-- Receipt Header -->
+            <div class="border-b-2 border-dashed border-gray-300 pb-4 mb-4">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">Just Flower</h2>
+                <p class="text-sm text-gray-600">Zone 4, Marifosque, Pilar, Philippines</p>
+                <p class="text-sm text-gray-600">Tel: 0910 494 8212</p>
+                <p class="text-sm text-gray-600">Date: <span id="receipt-date"></span></p>
+                <p class="text-sm text-gray-600">Order #: <span id="receipt-order-id"></span></p>
+            </div>
+
+            <!-- Order Details -->
+            <div class="text-left mb-4">
+                <div class="flex justify-between mb-2">
+                    <span class="text-gray-600">Product:</span>
+                    <span id="receipt-product-name" class="font-medium"></span>
+                </div>
+                <div class="flex justify-between mb-2">
+                    <span class="text-gray-600">Quantity:</span>
+                    <span id="receipt-quantity" class="font-medium"></span>
+                </div>
+                <div class="flex justify-between mb-2">
+                    <span class="text-gray-600">Unit Price:</span>
+                    <span id="receipt-unit-price" class="font-medium"></span>
+                </div>
+                <div class="flex justify-between mb-2">
+                    <span class="text-gray-600">Subtotal:</span>
+                    <span id="receipt-subtotal" class="font-medium"></span>
+                </div>
+                <div class="flex justify-between mb-2">
+                    <span class="text-gray-600">Shipping:</span>
+                    <span id="receipt-shipping" class="font-medium"></span>
+                </div>
+                <div class="flex justify-between mb-2">
+                    <span class="text-gray-600">Discount:</span>
+                    <span id="receipt-discount" class="font-medium"></span>
+                </div>
+                <div class="border-t-2 border-dashed border-gray-300 my-2"></div>
+                <div class="flex justify-between font-bold">
+                    <span>Total:</span>
+                    <span id="receipt-total" class="text-green-600"></span>
+                </div>
+            </div>
+
+            <!-- Payment Status -->
+            <div class="border-t-2 border-dashed border-gray-300 pt-4 mb-4">
+                <p class="text-sm text-gray-600">Payment Status: <span class="text-green-600 font-medium">Pending</span></p>
+                <p class="text-sm text-gray-600">Delivery Status: <span class="text-blue-600 font-medium">Processing</span></p>
+            </div>
+
+            <!-- Thank You Message -->
+            <div class="border-t-2 border-dashed border-gray-300 pt-4">
+                <h3 class="text-lg font-bold text-green-600 mb-2">Thank You!</h3>
+                <p class="text-sm text-gray-600 mb-4">Your order has been placed successfully.</p>
+                <button id="closeSuccessModal" class="bg-green-500 hover:bg-green-600 text-white py-2 px-6 rounded-lg transition duration-300">
+                    Close
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -184,13 +236,55 @@
         const successModal = document.getElementById('successModal');
         const closeSuccessModal = document.getElementById('closeSuccessModal');
 
-        // Debug logs
-        console.log('Session data:', @json(session()->all()));
-        console.log('Order success:', @json(session('order_success')));
+        // Function to format currency
+        const formatCurrency = (amount) => {
+            return '₱' + parseFloat(amount).toFixed(2);
+        };
+
+        // Function to update receipt details
+        const updateReceiptDetails = (orderData) => {
+            // Format the order ID with leading zeros
+            const productId = orderData.product_id.toString().padStart(3, '0');
+            const orderId = orderData.order_id.toString().padStart(3, '0');
+            const formattedOrderId = `ORD-${productId}${orderId}`;
+
+            document.getElementById('receipt-date').textContent = new Date().toLocaleDateString();
+            document.getElementById('receipt-order-id').textContent = formattedOrderId;
+            document.getElementById('receipt-product-name').textContent = orderData.product_name;
+            document.getElementById('receipt-quantity').textContent = orderData.quantity;
+            document.getElementById('receipt-unit-price').textContent = formatCurrency(orderData.unit_price);
+            document.getElementById('receipt-subtotal').textContent = formatCurrency(orderData.total_amount);
+            document.getElementById('receipt-shipping').textContent = formatCurrency(orderData.free_shipping ? 0 : 80);
+            document.getElementById('receipt-discount').textContent = formatCurrency(orderData.discount);
+            document.getElementById('receipt-total').textContent = formatCurrency(orderData.final_amount);
+
+            // Log the values for debugging
+            console.log('Receipt Details:', {
+                productId,
+                orderId,
+                formattedOrderId,
+                ...orderData
+            });
+        };
 
         // Check if the success message exists in the session
         if (@json(session('order_success'))) {
-            console.log('Showing success modal');
+            // Get order data from the form
+            const orderForm = document.getElementById('orderForm');
+            if (orderForm) {
+                const orderData = {
+                    product_id: orderForm.querySelector('[name="product_id"]').value,
+                    order_id: @json(session('order_id')),
+                    product_name: orderForm.querySelector('[name="product_name"]').value,
+                    quantity: orderForm.querySelector('[name="quantity"]').value,
+                    unit_price: document.getElementById('product-price').textContent.replace(/[^\d.]/g, ''),
+                    total_amount: orderForm.querySelector('[name="total_amount"]').value,
+                    final_amount: orderForm.querySelector('[name="final_amount"]').value,
+                    free_shipping: @json($freeShipping ?? false),
+                    discount: @json($discount ?? 0)
+                };
+                updateReceiptDetails(orderData);
+            }
             successModal.classList.remove('hidden');
         }
 
@@ -347,22 +441,30 @@ document.addEventListener('DOMContentLoaded', function () {
 
 <script>
 document.getElementById('orderForm').addEventListener('submit', function(e) {
-    // Log form data before submission
-    console.log('Form submission data:', {
-        product_id: this.querySelector('[name="product_id"]').value,
-        quantity: this.querySelector('[name="quantity"]').value,
-        total_amount: this.querySelector('[name="total_amount"]').value,
-        final_amount: this.querySelector('[name="final_amount"]').value,
-        product_name: this.querySelector('[name="product_name"]').value
-    });
+    // Get the unit price from the product price element
+    const unitPrice = parseFloat(document.getElementById('product-price').textContent.replace(/[^\d.]/g, ''));
+    const quantity = parseInt(document.getElementById('order-quantity').value);
+    const totalAmount = unitPrice * quantity;
+    
+    // Calculate final amount (including shipping and discount)
+    const shippingFee = {{ $freeShipping ? 0 : 80 }};
+    const discount = {{ $discount ?? 0 }};
+    const finalAmount = totalAmount + shippingFee - discount;
 
-    const totalAmount = document.getElementById('checkout-total-price').textContent.replace(/[^\d.]/g, '');
-    const finalAmount = document.querySelector('.text-orange-500').textContent.replace(/[^\d.]/g, '');
-    const quantity = document.getElementById('order-quantity').value;
-
+    // Update hidden input values
+    document.getElementById('order-unit-price').value = unitPrice;
     document.getElementById('order-total').value = totalAmount;
     document.getElementById('order-final').value = finalAmount;
-    document.getElementById('order-quantity').value = quantity;
+
+    // Log the values for debugging
+    console.log('Price Calculation:', {
+        unitPrice,
+        quantity,
+        totalAmount,
+        shippingFee,
+        discount,
+        finalAmount
+    });
 });
 </script>
 

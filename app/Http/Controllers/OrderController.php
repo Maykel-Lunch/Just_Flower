@@ -212,7 +212,13 @@ class OrderController extends Controller
             DB::commit();
             \Log::info('Transaction committed successfully');
 
-            return redirect()->back()->with('order_success', true);
+            // Pass both order_id and product_id to the view
+            return redirect()->back()->with([
+                'order_success' => true,
+                'order_id' => $order->order_id,
+                'product_id' => $request->product_id
+            ]);
+
         } catch (\Exception $e) {
             DB::rollback();
             \Log::error('Order placement failed', [
