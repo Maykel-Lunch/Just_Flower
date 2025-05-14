@@ -143,15 +143,21 @@
                             <span id = "discount-amount" class="text-green-600">-₱0.00</span>
                         </div> -->
                     </div>
+                    
                     <!-- Updated Form -->
-                    <form action="{{ route('orders.store') }}" method="POST">
+                    <form action="{{ route('orders.place') }}" method="POST" id="orderForm">
                         @csrf
-                        <input type="hidden" name="total_amount" id="hidden-total-amount" value="0">
-                        <input type="hidden" name="final_amount" id="hidden-final-amount" value="1710"> <!-- Replace with dynamic value -->
-                        <input type="hidden" name="quantity" value="1"> <!-- Replace with dynamic quantity -->
-                        <input type="hidden" name="product_name" value="{{ $product->product_name }}"> <!-- Replace with dynamic product name -->
-                        <button type="submit" class="w-full bg-orange-500 hover:bg-orange-600 text-white py-4 rounded-lg font-bold text-lg transition-colors">
-                            Place Order Now
+                        <input type="hidden" name="product_id" value="{{ $product->product_id }}">
+                        <input type="hidden" name="quantity" id="order-quantity" value="1">
+                        <input type="hidden" name="total_amount" id="order-total" value="{{ $product->price }}">
+                        <input type="hidden" name="final_amount" id="order-final" value="{{ $product->price }}">
+                        <input type="hidden" name="product_name" value="{{ $product->product_name }}">
+                        
+                        <button type="submit" class="w-full bg-gradient-to-r from-pink-500 to-yellow-400 text-white py-4 rounded-lg font-bold text-lg hover:from-pink-600 hover:to-yellow-500 transition duration-300 flex items-center justify-center" {{ $product->stock_quantity <= 0 ? 'disabled' : '' }}>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M3 12a9 9 0 1118 0 9 9 0 01-18 0z" />
+                            </svg>
+                            {{ $product->stock_quantity <= 0 ? 'Out of Stock' : 'Place Order Now' }}
                         </button>
                     </form>
                 </div>
@@ -178,17 +184,22 @@
         const successModal = document.getElementById('successModal');
         const closeSuccessModal = document.getElementById('closeSuccessModal');
 
+        // Debug logs
+        console.log('Session data:', @json(session()->all()));
+        console.log('Order success:', @json(session('order_success')));
+
         // Check if the success message exists in the session
-        @if(session('success'))
+        if (@json(session('order_success'))) {
+            console.log('Showing success modal');
             successModal.classList.remove('hidden');
-        @endif
+        }
 
         // Close the modal when the close button is clicked
         closeSuccessModal.addEventListener('click', function () {
             successModal.classList.add('hidden');
         });
 
-        // Close the modal when clicking outside of it
+        // Close the modal when clicking outside
         successModal.addEventListener('click', function (e) {
             if (e.target === successModal) {
                 successModal.classList.add('hidden');
@@ -331,6 +342,27 @@ document.addEventListener('DOMContentLoaded', function () {
             subtree: true
         });
     }
+});
+</script>
+
+<script>
+document.getElementById('orderForm').addEventListener('submit', function(e) {
+    // Log form data before submission
+    console.log('Form submission data:', {
+        product_id: this.querySelector('[name="product_id"]').value,
+        quantity: this.querySelector('[name="quantity"]').value,
+        total_amount: this.querySelector('[name="total_amount"]').value,
+        final_amount: this.querySelector('[name="final_amount"]').value,
+        product_name: this.querySelector('[name="product_name"]').value
+    });
+
+    const totalAmount = document.getElementById('checkout-total-price').textContent.replace(/[^\d.]/g, '');
+    const finalAmount = document.querySelector('.text-orange-500').textContent.replace(/[^\d.]/g, '');
+    const quantity = document.getElementById('order-quantity').value;
+
+    document.getElementById('order-total').value = totalAmount;
+    document.getElementById('order-final').value = finalAmount;
+    document.getElementById('order-quantity').value = quantity;
 });
 </script>
 

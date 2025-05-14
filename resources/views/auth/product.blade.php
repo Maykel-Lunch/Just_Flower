@@ -16,6 +16,21 @@
         </nav>
     </div>
 
+    <!-- Error Messages -->
+    <!-- @if(session('error'))
+        <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-4">
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                <strong class="font-bold">Error!</strong>
+                <span class="block sm:inline">{{ session('error') }}</span>
+                <button type="button" class="absolute top-0 bottom-0 right-0 px-4 py-3" onclick="this.parentElement.style.display='none'">
+                    <svg class="fill-current h-6 w-6 text-red-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                        <title>Close</title>
+                        <path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    @endif -->
 
     <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-8">
         @if(isset($product))
@@ -36,8 +51,19 @@
                     </div>
 
                     <!-- Center Section: Primary Image -->
+                    <!-- <div class="w-1/2">
+                        <img id="mainImage" src="{{ $product->primaryImage ? asset($product->primaryImage->image_url) : 'https://via.placeholder.com/150' }}" alt="{{ $product->product_name }}" class="rounded-lg w-2/3 h-auto">
+                    </div> -->
+
+                    <!-- Center Section: Primary Image -->
                     <div class="w-1/2">
                         <img id="mainImage" src="{{ $product->primaryImage ? asset($product->primaryImage->image_url) : 'https://via.placeholder.com/150' }}" alt="{{ $product->product_name }}" class="rounded-lg w-2/3 h-auto">
+                        <div class="mt-2 text-gray-600">
+                            <span class="font-semibold">Stock Available:</span> 
+                            <span id="stock-display" class="{{ $product->stock_quantity <= 0 ? 'text-red-500' : 'text-green-500' }}">
+                                {{ $product->stock_quantity <= 0 ? 'Out of Stock' : $product->stock_quantity }}
+                            </span>
+                        </div>
                     </div>
 
                     <!-- Right Section: Product Details -->
@@ -109,20 +135,21 @@
                             <form action="{{ route('cart.add') }}" method="POST" class="flex items-center space-x-4" id="cartForm">
                                 @csrf
                                 <input type="hidden" name="product_id" value="{{ $product->product_id }}">
+                                <input type="hidden" name="max_stock" value="{{ $product->stock_quantity }}">
                                 
                                 <!-- Quantity Selector -->
                                 <div class="flex items-center border border-gray-300 rounded-full">
                                     <button type="button" id="decrement" class="px-4 py-2 text-gray-600 hover:text-gray-800 focus:outline-none">-</button>
-                                    <input id="quantity" name="quantity" type="number" value="1" min="1" class="w-16 text-center text-gray-700 focus:outline-none">
+                                    <input id="quantity" name="quantity" type="number" value="1" min="1" max="{{ $product->stock_quantity }}" class="w-16 text-center text-gray-700 focus:outline-none">
                                     <button type="button" id="increment" class="px-4 py-2 text-gray-600 hover:text-gray-800 focus:outline-none">+</button>
                                 </div>
 
                                 <!-- Add to Cart Button -->
-                                <button type="submit" class="bg-gradient-to-r from-[#EBC980] to-[#EC59A0] text-white px-6 py-2 rounded-full hover:opacity-90 flex items-center">
+                                <button type="submit" class="bg-gradient-to-r from-[#EBC980] to-[#EC59A0] text-white px-6 py-2 rounded-full hover:opacity-90 flex items-center" {{ $product->stock_quantity <= 0 ? 'disabled' : '' }}>
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.4 5.6a1 1 0 001 1.4h12a1 1 0 001-1.4L17 13M7 13H5.4M5.4 5L7 13m0 0h10m-6 8a2 2 0 100-4 2 2 0 000 4z" />
                                     </svg>
-                                    Add to Cart
+                                    {{ $product->stock_quantity <= 0 ? 'Out of Stock' : 'Add to Cart' }}
                                 </button>
                             </form>
 
@@ -140,6 +167,22 @@
                             </p>
                             <input type="hidden" id="hidden-total-price" value="{{ $product->price }}">
 
+                            <!-- Place Order Button -->
+                            <!-- <form action="{{ route('orders.place') }}" method="POST" id="orderForm">
+                                @csrf
+                                <input type="hidden" name="product_id" value="{{ $product->product_id }}">
+                                <input type="hidden" name="quantity" id="order-quantity" value="1">
+                                <input type="hidden" name="total_amount" id="order-total" value="{{ $product->price }}">
+                                <input type="hidden" name="final_amount" id="order-final" value="{{ $product->price }}">
+                                <input type="hidden" name="product_name" value="{{ $product->product_name }}">
+                                
+                                <button type="submit" class="bg-gradient-to-r from-pink-500 to-yellow-400 text-white px-6 py-2 rounded-full text-lg font-semibold hover:from-pink-600 hover:to-yellow-500 transition duration-300 flex items-center justify-center" {{ $product->stock_quantity <= 0 ? 'disabled' : '' }}>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M3 12a9 9 0 1118 0 9 9 0 01-18 0z" />
+                                </svg>
+                                    {{ $product->stock_quantity <= 0 ? 'Out of Stock' : 'Place Order' }}
+                                </button>
+                            </form> -->
                             <!-- Place Order Button -->
                             <button id="openCheckoutModal" type="submit" class="bg-gradient-to-r from-pink-500 to-yellow-400 text-white px-6 py-2 rounded-full text-lg font-semibold hover:from-pink-600 hover:to-yellow-500 transition duration-300 flex items-center justify-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -263,6 +306,10 @@
             const incrementButton = document.getElementById("increment");
             const decrementButton = document.getElementById("decrement");
             const modalQuantityElement = document.querySelector('#checkoutModal .modal-quantity');
+            const maxStock = parseInt(document.querySelector('input[name="max_stock"]').value);
+            const orderQuantityInput = document.getElementById("order-quantity");
+            const orderTotalInput = document.getElementById("order-total");
+            const orderFinalInput = document.getElementById("order-final");
 
             function getPrice() {
                 const priceElement = document.getElementById("product-price");
@@ -274,6 +321,7 @@
                 const price = getPrice();
                 let quantity = parseInt(quantityInput.value) || 1;
                 if (quantity < 1) quantity = 1;
+                if (quantity > maxStock) quantity = maxStock;
                 const totalPrice = price * quantity;
 
                 // Update the total price display
@@ -283,11 +331,10 @@
                     });
                 }
 
-                // Update the hidden input value
-                const hiddenTotalPrice = document.getElementById("hidden-total-price");
-                if (hiddenTotalPrice) {
-                    hiddenTotalPrice.value = totalPrice;
-                }
+                // Update the hidden input values
+                if (orderQuantityInput) orderQuantityInput.value = quantity;
+                if (orderTotalInput) orderTotalInput.value = totalPrice;
+                if (orderFinalInput) orderFinalInput.value = totalPrice;
             }
 
             const updateModalQuantity = () => {
@@ -299,9 +346,12 @@
 
             if (incrementButton) {
                 incrementButton.addEventListener("click", function () {
-                    quantityInput.value = parseInt(quantityInput.value) + 1;
-                    updateTotalPrice();
-                    updateModalQuantity();
+                    const currentValue = parseInt(quantityInput.value);
+                    if (currentValue < maxStock) {
+                        quantityInput.value = currentValue + 1;
+                        updateTotalPrice();
+                        updateModalQuantity();
+                    }
                 });
             }
 
@@ -316,6 +366,12 @@
             }
 
             quantityInput.addEventListener("input", function() {
+                let value = parseInt(this.value);
+                if (value > maxStock) {
+                    this.value = maxStock;
+                } else if (value < 1) {
+                    this.value = 1;
+                }
                 updateTotalPrice();
                 updateModalQuantity();
             });

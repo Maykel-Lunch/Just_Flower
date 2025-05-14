@@ -8,15 +8,15 @@ use App\Models\OrderItem;
 use App\Models\Message;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
 use App\Models\User;
+use App\Models\Product;
 
 class OrderController extends Controller
 {
     public function __construct()
     {
-        // Check admin access for all methods in this controller
-
-           // Check if user is ID 1 (admin)
+        // Check if user is ID 1 (admin)
         if (!Auth::check() || Auth::id() !== 1) {
             return redirect()->route('dashboard')
                 ->with('error', 'Access denied. Admin privileges required.');
@@ -143,34 +143,84 @@ class OrderController extends Controller
         }
     }
 
-
-
-    public function store(Request $request)
+    public function placeOrder(Request $request)
     {
+        // Log the incoming request data
+        \Log::info('Order placement attempt', [
+            'request_data' => $request->all(),
+            'user_id' => Auth::id()
+        ]);
+
         $request->validate([
             'total_amount' => 'required|numeric',
             'final_amount' => 'required|numeric',
             'quantity' => 'required|integer|min:1',
             'product_name' => 'required|string|max:255',
+            'product_id' => 'required|exists:products,product_id',
         ]);
-    
-        // Create the order
-        $order = Order::create([
-            'user_id' => Auth::id(),
-            'total_amount' => $request->input('total_amount'),
-            'final_amount' => $request->input('final_amount'),
-        ]);
-    
-        // Save the success message to the messages table
-        $messageContent = "You successfully purchased {$request->input('quantity')} {$request->input('product_name')}! Total payment: ₱{$request->input('final_amount')}";
-        Message::create([
-            'sender_id' => 1, // Assuming the admin's user ID is 1
-            'receiver_id' => Auth::id(),
-            'message_content' => $messageContent,
-            'sent_at' => now(),
-        ]);
-    
-        // Redirect back with a success message
-        return redirect()->back()->with('success', 'Order placed successfully!');
+
+        DB::beginTransaction();
+
+        try {
+            $product = Product::findOrFail($request->product_id);
+            \Log::info('Product found', ['product' => $product->toArray()]);
+
+            if ($product->stock_quantity < $request->quantity) {
+                return redirect()->back()->with('error', 'Not enough stock available.');
+            }
+
+            // Create the order with all required fields
+            $orderData = [
+                'user_id' => Auth::id(),
+                'total_amount' => $request->input('total_amount'),
+                'final_amount' => $request->input('final_amount'),
+                'payment_status' => 'pending',
+                'delivery_status' => 'processing',
+            ];
+
+            \Log::info('Attempting to create order', ['order_data' => $orderData]);
+
+            $order = Order::create($orderData);
+            \Log::info('Order created', ['order' => $order->toArray()]);
+
+            // Create order item
+            $orderItemData = [
+                'order_id' => $order->order_id,
+                'product_id' => $request->product_id,
+                'quantity' => $request->quantity,
+                'unit_price' => $product->price,
+            ];
+
+            \Log::info('Attempting to create order item', ['order_item_data' => $orderItemData]);
+            $orderItem = OrderItem::create($orderItemData);
+            \Log::info('Order item created', ['order_item' => $orderItem->toArray()]);
+
+            // Update product stock
+            $product->stock_quantity -= $request->quantity;
+            $product->save();
+            \Log::info('Product stock updated', ['product' => $product->toArray()]);
+
+            // Create message
+            $messageContent = "You successfully purchased {$request->input('quantity')} {$request->input('product_name')}! Total payment: ₱{$request->input('final_amount')}";
+            Message::create([
+                'sender_id' => 1,
+                'receiver_id' => Auth::id(),
+                'message_content' => $messageContent,
+                'sent_at' => now(),
+            ]);
+
+            DB::commit();
+            \Log::info('Transaction committed successfully');
+
+            return redirect()->back()->with('order_success', true);
+        } catch (\Exception $e) {
+            DB::rollback();
+            \Log::error('Order placement failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'request_data' => $request->all()
+            ]);
+            return redirect()->back()->with('error', 'An error occurred while processing your order: ' . $e->getMessage());
+        }
     }
 }

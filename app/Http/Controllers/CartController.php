@@ -13,12 +13,17 @@ class CartController extends Controller
     {
         // Validate the request
         $request->validate([
-            'product_id' => 'required|exists:products,product_id', // Ensure product_id exists in the products table
+            'product_id' => 'required|exists:products,product_id',
             'quantity' => 'required|integer|min:1',
         ]);
 
         // Retrieve the product
         $product = Product::findOrFail($request->product_id);
+
+        // Check if there's enough stock
+        if ($product->stock_quantity < $request->quantity) {
+            return redirect()->back()->with('error', 'Not enough stock available.');
+        }
 
         // Check if the product is already in the cart
         $cartItem = Cart::where('user_id', Auth::id())
@@ -26,6 +31,11 @@ class CartController extends Controller
             ->first();
 
         if ($cartItem) {
+            // Check if adding the new quantity would exceed stock
+            if (($cartItem->quantity + $request->quantity) > $product->stock_quantity) {
+                return redirect()->back()->with('error', 'Not enough stock available.');
+            }
+            
             // Update the quantity if the product is already in the cart
             $cartItem->quantity += $request->quantity;
             $cartItem->save();
@@ -39,7 +49,7 @@ class CartController extends Controller
             ]);
         }
 
-        return redirect()->back()->with('success', 'Product added to cart!');
+        return redirect()->back()->with('cart_success', 'Product added to cart!');
     }
 
     public function viewCart()

@@ -109,7 +109,7 @@ Route::get('/api/orders', [OrderController::class, 'getOrders'])->name('api.orde
 
 
 Route::post('/orders/store', [OrderController::class, 'store'])->name('orders.store');
-
+Route::post('/orders/place', [OrderController::class, 'placeOrder'])->name('orders.place');
 
 Route::get('/messages/fetch', [MessageController::class, 'fetchMessages'])->name('messages.fetch');
 
