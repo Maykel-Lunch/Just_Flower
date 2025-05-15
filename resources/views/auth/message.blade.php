@@ -1,25 +1,25 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="flex flex-col md:flex-row min-h-screen">
+<div class="flex flex-col md:flex-row min-h-screen bg-gray-50">
     @if (isset($users)) <!-- Admin View -->
         <!-- User List -->
-        <aside class="w-full md:w-1/4 bg-white border-r p-4 overflow-y-auto rounded-lg m-4 h-[calc(100vh-2rem)]">
-            <h2 class="text-xl font-bold mb-4">Users</h2>
-            <ul class="space-y-2" id="userList">
+        <aside class="w-full md:w-1/4 bg-white border-r p-6 overflow-y-auto rounded-lg m-4 h-[calc(100vh-2rem)] shadow-sm">
+            <h2 class="text-2xl font-bold mb-6 text-gray-800">Users</h2>
+            <ul class="space-y-3" id="userList">
                 @foreach ($users as $user)
                     <li>
                         <a href="#" data-user-id="{{ $user->id }}"
-                           class="user-link flex items-center space-x-3 p-3 rounded-lg transition hover:bg-gray-100 {{ isset($selectedUserId) && $selectedUserId == $user->id ? 'bg-gray-200' : '' }}">
+                           class="user-link flex items-center space-x-4 p-4 rounded-xl transition hover:bg-gray-50 {{ isset($selectedUserId) && $selectedUserId == $user->id ? 'bg-pink-50 border border-pink-100' : '' }}">
                             @if ($user->profile)
-                                <img src="{{ $user->profile }}" class="w-10 h-10 rounded-full object-cover">
+                                <img src="{{ $user->profile }}" class="w-12 h-12 rounded-full object-cover ring-2 ring-pink-100">
                             @else
-                                <div class="w-10 h-10 rounded-full bg-pink-500 flex items-center justify-center text-white font-semibold">
+                                <div class="w-12 h-12 rounded-full bg-pink-500 flex items-center justify-center text-white font-semibold text-lg">
                                     {{ strtoupper(substr($user->name, 0, 1)) }}
                                 </div>
                             @endif
-                            <div class="min-w-0">
-                                <p class="font-semibold truncate">{{ $user->name }}</p>
+                            <div class="min-w-0 flex-1">
+                                <p class="font-semibold text-gray-900 truncate">{{ $user->name }}</p>
                                 <p class="text-sm text-gray-500 truncate">{{ $user->recent_message ?? 'No messages yet'}}</p>
                             </div>
                         </a>
@@ -32,36 +32,38 @@
     <!-- Chat Area -->
     <main class="flex-1 flex flex-col rounded-lg m-4 bg-white border shadow-lg max-h-[calc(100vh-2rem)]">
         <!-- Header -->
-        <header class="bg-white border-b p-4">
-            <h1 class="text-xl font-semibold">
+        <header class="bg-white border-b p-6">
+            <h1 class="text-2xl font-semibold text-gray-800">
                 {{ isset($users) ? 'Conversation' : 'Customer Support' }}
             </h1>
         </header>
 
         <!-- Scrollable message area -->
-        <div class="flex-1 overflow-y-auto p-6 space-y-6" id="messageArea">
+        <div class="flex-1 overflow-y-auto p-8 space-y-6" id="messageArea">
             @forelse ($messages as $message)
                 <div class="flex flex-col max-w-[75%] {{ $message->sender_id === Auth::id() ? 'ml-auto text-right' : 'mr-auto text-left' }}">
-                    <p class="text-sm font-semibold">
+                    <p class="text-sm font-semibold mb-1 text-gray-700">
                         {{ $message->sender_id === Auth::id() ? 'You' : ($message->sender->name ?? 'Admin') }}
                     </p>
-                    <div class="{{ $message->sender_id === Auth::id() ? 'bg-blue-100' : 'bg-gray-200' }} p-3 rounded-lg">
+                    <div class="{{ $message->sender_id === Auth::id() ? 'bg-pink-100 text-pink-900' : 'bg-gray-100 text-gray-900' }} p-4 rounded-2xl shadow-sm">
                         {!! nl2br(e(str_replace('\n', "\n", $message->message_content))) !!}
                     </div>
-                    <p class="text-xs text-gray-500 mt-1">
+                    <p class="text-xs text-gray-500 mt-2">
                         {{ $message->sent_at->format('F j, Y g:i A') }}
                     </p>
                 </div>
             @empty
-                <p class="text-gray-500">
+                <div class="text-center py-12">
+                    <p class="text-gray-500 text-lg">
                     No messages yet. {{ isset($users) ? 'Select a user to view the conversation.' : 'Start the conversation!' }}
                 </p>
+                </div>
             @endforelse
         </div>
 
-        <!-- Message Form -->
-        <div class="border-t bg-white p-4">
-            <form id="messageForm" class="flex items-center gap-3 relative">
+        <!-- Message Form - Fixed at bottom -->
+        <div class="border-t bg-white p-6 sticky bottom-0">
+            <form id="messageForm" class="flex items-center gap-4 relative">
                 @csrf
                 <input type="hidden" name="receiver_id" value="{{ $selectedUserId ?? 1 }}" id="receiverId">
                 
@@ -71,24 +73,24 @@
                         name="message_content"
                         rows="1"
                         placeholder="Type a message..."
-                        class="w-full border border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200 overflow-hidden resize-none"
-                        style="min-height: 44px; max-height: 120px;"
+                        class="w-full border border-gray-200 rounded-2xl px-6 py-4 focus:outline-none focus:ring-2 focus:ring-pink-200 focus:border-pink-200 overflow-hidden resize-none bg-gray-50"
+                        style="min-height: 48px; max-height: 120px;"
                         required
                         id="messageInput"
                     ></textarea>
                 </div>
                 
                 <!-- Send Button -->
-                <button type="submit" class="text-blue-500 text-xl hover:text-blue-700 transition" id="sendButton">
+                <button type="submit" class="bg-pink-500 text-white p-4 rounded-full hover:bg-pink-600 transition-colors duration-200" id="sendButton">
                     <i class="fas fa-paper-plane"></i>
                 </button>
                 
                 <!-- Loading Indicator -->
-                <div id="loadingIndicator" class="absolute bottom-16 left-1/2 transform -translate-x-1/2 hidden">
+                <div id="loadingIndicator" class="absolute bottom-20 left-1/2 transform -translate-x-1/2 hidden">
                     <div class="flex space-x-2">
-                        <div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
-                        <div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
-                        <div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0.4s"></div>
+                        <div class="w-3 h-3 bg-pink-500 rounded-full animate-bounce"></div>
+                        <div class="w-3 h-3 bg-pink-500 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                        <div class="w-3 h-3 bg-pink-500 rounded-full animate-bounce" style="animation-delay: 0.4s"></div>
                     </div>
                 </div>
             </form>
@@ -252,10 +254,10 @@ document.addEventListener('DOMContentLoaded', function () {
                         html += `
                             <div class="flex flex-col max-w-[75%] ${isCurrentUser ? 'ml-auto text-right' : 'mr-auto text-left'}">
                                 <p class="text-sm font-semibold">${senderName}</p>
-                                <div class="${isCurrentUser ? 'bg-blue-100' : 'bg-gray-200'} p-3 rounded-lg">
+                                <div class="${isCurrentUser ? 'bg-pink-100 text-pink-900' : 'bg-gray-100 text-gray-900'} p-4 rounded-2xl shadow-sm">
                                     ${message.message_content.replace(/\n/g, '<br>')}
                                 </div>
-                                <p class="text-xs text-gray-500 mt-1">
+                                <p class="text-xs text-gray-500 mt-2">
                                     ${new Date(message.sent_at).toLocaleString('en-US', {
                                         month: 'long', 
                                         day: 'numeric', 
