@@ -90,4 +90,19 @@ class User extends Authenticatable
         return $this->id == 1;
     }
 
+    /**
+     * Get all messages sent by the user
+     */
+    public function sentMessages()
+    {
+        return $this->hasMany(Message::class, 'sender_id');
+    }
+
+    /**
+     * Get all messages received by the user
+     */
+    public function receivedMessages()
+    {
+        return $this->hasMany(Message::class, 'receiver_id');
+    }
 }

@@ -16,47 +16,74 @@ class MessageController extends Controller
 public function index(Request $request)
 {
     $adminId = 1; // Assuming the admin's user ID is 1
-    $currentUserId = Auth::id(); // Get the currently authenticated user's ID
+    $currentUserId = Auth::id();
 
-    // Check if the user is the admin
     if ($currentUserId === $adminId) {
-        $selectedUserId = $request->query('user_id'); // Get the selected user ID from the query string
+        $selectedUserId = $request->query('user_id');
+        $selectedUser = null;
 
-        // Fetch all users who have messaged the admin or been messaged by the admin
-        $users = Message::where('receiver_id', $adminId)
-            ->orWhere('sender_id', $adminId)
-            ->with(['sender', 'receiver'])
-            ->get()
-            ->map(function ($message) use ($adminId) {
-                $user = $message->sender_id === $adminId ? $message->receiver : $message->sender;
-                $user->recent_message = Message::where(function ($query) use ($adminId, $user) {
-                    $query->where('sender_id', $adminId)
-                        ->where('receiver_id', $user->id);
-                })->orWhere(function ($query) use ($adminId, $user) {
-                    $query->where('sender_id', $user->id)
-                        ->where('receiver_id', $adminId);
-                })->latest('sent_at')->value('message_content');
+        // Get all unique users who have conversations with admin, excluding admin
+        $users = User::where('id', '!=', $adminId) // Exclude admin from the list
+            ->whereHas('sentMessages', function($query) use ($adminId) {
+                $query->where('receiver_id', $adminId);
+            })->orWhereHas('receivedMessages', function($query) use ($adminId) {
+                $query->where('sender_id', $adminId);
+            })->with(['sentMessages' => function($query) use ($adminId) {
+                $query->where('receiver_id', $adminId)
+                      ->select('sender_id', 'receiver_id', 'message_content', 'sent_at')
+                      ->latest('sent_at');
+            }, 'receivedMessages' => function($query) use ($adminId) {
+                $query->where('sender_id', $adminId)
+                      ->select('sender_id', 'receiver_id', 'message_content', 'sent_at')
+                      ->latest('sent_at');
+            }])->get()
+            ->map(function ($user) use ($adminId) {
+                $latestMessage = $user->sentMessages->merge($user->receivedMessages)
+                    ->sortByDesc('sent_at')
+                    ->first();
+
+                $user->recent_message = $latestMessage ? $latestMessage->message_content : null;
+                $user->latest_message_time = $latestMessage ? $latestMessage->sent_at : null;
+                
+                unset($user->sentMessages);
+                unset($user->receivedMessages);
+                
                 return $user;
             })
-            ->unique('id'); // Ensure unique users
+            ->sortByDesc('latest_message_time');
+
+        // Get the selected user's data with full user information
+        if ($selectedUserId) {
+            $selectedUser = User::select('id', 'name', 'profile')
+                              ->where('id', $selectedUserId)
+                              ->first();
+        }
 
         // Fetch messages with the selected user
         $messages = [];
         if ($selectedUserId) {
-            $messages = Message::where(function ($query) use ($adminId, $selectedUserId) {
+            $messages = Message::with(['sender' => function($query) {
+                $query->select('id', 'name', 'profile');
+            }])
+            ->where(function($query) use ($adminId, $selectedUserId) {
                 $query->where('sender_id', $adminId)
-                    ->where('receiver_id', $selectedUserId);
-            })->orWhere(function ($query) use ($adminId, $selectedUserId) {
+                      ->where('receiver_id', $selectedUserId);
+            })->orWhere(function($query) use ($adminId, $selectedUserId) {
                 $query->where('sender_id', $selectedUserId)
-                    ->where('receiver_id', $adminId);
-            })->orderBy('sent_at', 'asc')->get();
+                      ->where('receiver_id', $adminId);
+            })
+            ->orderBy('sent_at', 'asc')
+            ->get();
         }
 
-        return view('auth.message', compact('users', 'messages', 'selectedUserId'));
+        return view('auth.message', compact('users', 'messages', 'selectedUserId', 'selectedUser'));
     }
 
     // For regular users, show a simplified chat interface with the admin
-    $messages = Message::where(function ($query) use ($adminId, $currentUserId) {
+    $messages = Message::with(['sender' => function($query) {
+        $query->select('id', 'name', 'profile');
+    }])
+    ->where(function ($query) use ($adminId, $currentUserId) {
         $query->where('sender_id', $adminId)
             ->where('receiver_id', $currentUserId);
     })->orWhere(function ($query) use ($adminId, $currentUserId) {
@@ -94,23 +121,35 @@ public function index(Request $request)
 
     public function fetchMessages(Request $request)
     {
-        $adminId = 1; // Assuming the admin's user ID is 1
-        $currentUserId = Auth::id(); // Get the currently authenticated user's ID
-        $selectedUserId = $request->query('user_id'); // Get the selected user ID from the query string
-    
-        // Fetch messages between the current user and the selected user
-        $messages = Message::with('sender') // Eager load the sender relationship
-            ->where(function ($query) use ($adminId, $selectedUserId, $currentUserId) {
-                $query->where('sender_id', $currentUserId)
-                      ->where('receiver_id', $selectedUserId);
-            })
-            ->orWhere(function ($query) use ($adminId, $selectedUserId, $currentUserId) {
-                $query->where('sender_id', $selectedUserId)
-                      ->where('receiver_id', $currentUserId);
-            })
-            ->orderBy('sent_at', 'asc')
-            ->get();
-    
+        $adminId = 1;
+        $currentUserId = Auth::id();
+        $selectedUserId = $request->query('user_id');
+
+        $messages = Message::with(['sender' => function($query) {
+            $query->select('id', 'name', 'profile')
+                  ->withDefault(['profile' => null]);
+        }])
+        ->where(function ($query) use ($adminId, $selectedUserId, $currentUserId) {
+            $query->where('sender_id', $currentUserId)
+                  ->where('receiver_id', $selectedUserId);
+        })
+        ->orWhere(function ($query) use ($adminId, $selectedUserId, $currentUserId) {
+            $query->where('sender_id', $selectedUserId)
+                  ->where('receiver_id', $currentUserId);
+        })
+        ->orderBy('sent_at', 'asc')
+        ->get();
+
+        // Add debug logging
+        \Log::info('Messages data:', [
+            'count' => $messages->count(),
+            'sample' => $messages->first() ? [
+                'sender_id' => $messages->first()->sender_id,
+                'sender_name' => $messages->first()->sender->name ?? 'null',
+                'sender_profile' => $messages->first()->sender->profile ?? 'null'
+            ] : 'no messages'
+        ]);
+
         return response()->json($messages);
     }
 

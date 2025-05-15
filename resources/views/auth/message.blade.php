@@ -21,6 +21,7 @@
                             <div class="min-w-0 flex-1">
                                 <p class="font-semibold text-gray-900 truncate">{{ $user->name }}</p>
                                 <p class="text-sm text-gray-500 truncate">{{ $user->recent_message ?? 'No messages yet'}}</p>
+                                <p class="text-xs text-gray-400">{{ $user->latest_message_time ? \Carbon\Carbon::parse($user->latest_message_time)->diffForHumans() : '' }}</p>
                             </div>
                         </a>
                     </li>
@@ -34,7 +35,15 @@
         <!-- Header -->
         <header class="bg-white border-b p-6">
             <h1 class="text-2xl font-semibold text-gray-800">
-                {{ isset($users) ? 'Conversation' : 'Customer Support' }}
+                @if(isset($users))
+                    @if(isset($selectedUser) && $selectedUser)
+                        {{ $selectedUser->name }}
+                    @else
+                        Select a User
+                    @endif
+                @else
+                    Admin
+                @endif
             </h1>
         </header>
 
@@ -43,7 +52,13 @@
             @forelse ($messages as $message)
                 <div class="flex flex-col max-w-[75%] {{ $message->sender_id === Auth::id() ? 'ml-auto text-right' : 'mr-auto text-left' }}">
                     <p class="text-sm font-semibold mb-1 text-gray-700">
-                        {{ $message->sender_id === Auth::id() ? 'You' : ($message->sender->name ?? 'Admin') }}
+                        @if($message->sender_id === Auth::id())
+                            You
+                        @elseif($message->sender)
+                            {{ $message->sender->name }}
+                        @else
+                            Admin
+                        @endif
                     </p>
                     <div class="{{ $message->sender_id === Auth::id() ? 'bg-pink-100 text-pink-900' : 'bg-gray-100 text-gray-900' }} p-4 rounded-2xl shadow-sm">
                         {!! nl2br(e(str_replace('\n', "\n", $message->message_content))) !!}
@@ -55,8 +70,8 @@
             @empty
                 <div class="text-center py-12">
                     <p class="text-gray-500 text-lg">
-                    No messages yet. {{ isset($users) ? 'Select a user to view the conversation.' : 'Start the conversation!' }}
-                </p>
+                        No messages yet. {{ isset($users) ? 'Select a user to view the conversation.' : 'Start the conversation!' }}
+                    </p>
                 </div>
             @endforelse
         </div>
@@ -161,13 +176,17 @@ document.addEventListener('DOMContentLoaded', function () {
                 
                 // Update selected user UI
                 document.querySelectorAll('.user-link').forEach(el => {
-                    el.classList.remove('bg-gray-200');
+                    el.classList.remove('bg-pink-50', 'border', 'border-pink-100');
                 });
-                this.classList.add('bg-gray-200');
+                this.classList.add('bg-pink-50', 'border', 'border-pink-100');
                 
                 // Update receiver ID
                 selectedUserId = userId;
                 document.getElementById('receiverId').value = userId;
+                
+                // Update the header with the selected user's name
+                const userName = this.querySelector('.font-semibold').textContent;
+                document.querySelector('header h1').textContent = userName;
                 
                 // Clear existing polling
                 if (messagePolling) {
@@ -180,6 +199,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 messagePolling = setInterval(fetchMessages, 3000);
             });
         });
+
+        // Don't automatically select the first user
+        // Remove any automatic selection logic
+        if (!selectedUserId) {
+            document.querySelector('header h1').textContent = 'Select a User';
+            messagePolling = null;
+        }
     }
 
     // Handle form submission via AJAX
@@ -230,7 +256,6 @@ document.addEventListener('DOMContentLoaded', function () {
     function fetchMessages() {
         if (!messageArea || !selectedUserId) return;
 
-        // Store scroll position and height before fetching new messages
         const wasAtBottom = isScrolledToBottom(messageArea);
         const previousScrollHeight = messageArea.scrollHeight;
         const previousScrollTop = messageArea.scrollTop;
@@ -248,8 +273,15 @@ document.addEventListener('DOMContentLoaded', function () {
                 } else {
                     messages.forEach(message => {
                         const isCurrentUser = message.sender_id === currentUserId;
-                        const senderName = isCurrentUser ? 'You' : 
-                                        (message.sender && message.sender.name ? message.sender.name : 'Admin');
+                        let senderName;
+                        
+                        if (isCurrentUser) {
+                            senderName = 'You';
+                        } else if (message.sender) {
+                            senderName = message.sender.name;  // Always show full name
+                        } else {
+                            senderName = 'Admin';
+                        }
                         
                         html += `
                             <div class="flex flex-col max-w-[75%] ${isCurrentUser ? 'ml-auto text-right' : 'mr-auto text-left'}">
@@ -271,19 +303,14 @@ document.addEventListener('DOMContentLoaded', function () {
                     });
                 }
                 
-                // Only update if messages actually changed
                 if (messageArea.innerHTML !== html) {
                     messageArea.innerHTML = html;
                     
-                    // Calculate if new messages were added to the bottom
                     const newMessagesAtBottom = messageArea.scrollHeight > previousScrollHeight;
                     
-                    // Maintain scroll position if user was looking at older messages
                     if (!wasAtBottom && newMessagesAtBottom) {
-                        // User was not at bottom, maintain their scroll position relative to the old messages
                         messageArea.scrollTop = previousScrollTop + (messageArea.scrollHeight - previousScrollHeight);
                     } else if (wasAtBottom) {
-                        // User was at bottom, scroll to new bottom
                         messageArea.scrollTop = messageArea.scrollHeight;
                     }
                 }
@@ -303,6 +330,9 @@ document.addEventListener('DOMContentLoaded', function () {
     if (selectedUserId) {
         fetchMessages();
         messagePolling = setInterval(fetchMessages, 3000);
+    } else if (isAdminView) {
+        // If no user is selected in admin view, don't start polling
+        messagePolling = null;
     }
     
     // Clean up interval when leaving page
